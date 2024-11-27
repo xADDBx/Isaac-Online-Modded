@@ -155,7 +155,7 @@ EID:addEntity(5, 10, 2, "Custom Name", "New Custom description") -- Entity
 
 ------ Test: adding custom transformation icon ------
 local dummySprite = Sprite()
-dummySprite:Load("gfx/eid_inline_icons.anm2", true)
+dummySprite:Load("scripts/eidonline/resources/gfx/eid_inline_icons.anm2", true)
 EID:addIcon("NewTransform1", "hearts", 2, 9, 9, -1, 0, dummySprite)
 -- the Transformation icon will try to get an icon with the same name as the transformation, but without any spaces. Default Icon otherwise
 EID:createTransformation("NewTransform1", "New transformation") -- Transformation
@@ -171,7 +171,7 @@ EID:assignTransformation("collectible", 2, "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,
 
 ------ Test: adding custom icons ------
 local dummySprite2 = Sprite()
-dummySprite2:Load("gfx/eid_inline_icons.anm2", true)
+dummySprite2:Load("scripts/eidonline/resources/gfx/eid_inline_icons.anm2", true)
 -- add animated icon using api function (Make sure to create new Sprite Obj when using animated icons. Reuse objects when only using static icons)
 EID:addIcon("TestIcon", "hearts", -1, 9, 9, -1, 0, dummySprite2)
 EID:AddIconToObject(5, 100, 1, "TestIcon")
@@ -179,7 +179,7 @@ EID:AddIconToObject(5, 100, 1, "TestIcon")
 
 -- add icon directly
 local dummySprite3 = Sprite()
-dummySprite3:Load("gfx/eid_inline_icons.anm2", true)
+dummySprite3:Load("scripts/eidonline/resources/gfx/eid_inline_icons.anm2", true)
 EID.InlineIcons["Test"] = {"pickups", -1, 9, 9, -1, 0, dummySprite3}
 -- Add custom card / pill icon
 --EID.InlineIcons["Card58"] = {"pickups", -1, 9, 9, -1, 0, dummySprite3}

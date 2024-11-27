@@ -7,7 +7,7 @@ EID.collectiblesToCheck = {}
 -- added to and applied by eid_modifiers.lua
 EID.DifferentEffectPlayers = {}
 
-require("features.eid_conditionals_funcs")
+require("eidonline.features.eid_conditionals_funcs")
 
 
 --[[ The general meaning of the arguments when adding a conditional are as follows:

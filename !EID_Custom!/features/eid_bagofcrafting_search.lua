@@ -29,7 +29,7 @@ local function sanitizeName(name)
 end
 
 -- KR name search is complicated, divided into seperate file
-require("features.eid_bagofcrafting_search_kr")
+require("eidonline.features.eid_bagofcrafting_search_kr")
 
 --- Returns the current search query
 -- @param newValue new search query

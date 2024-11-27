@@ -9,11 +9,11 @@ local game = Game()
 EID.isRepentance = REPENTANCE -- REPENTANCE variable can be altered by any mod, so we save the value before anyone can alter it
 EID.isRepentancePlus = FontRenderSettings ~= nil -- Repentance+ adds FontRenderSettings() class. We use this to check if the DLC is enabled
 
-require("eid_config")
+require("eidonline.eid_config")
 EID.Config = EID.UserConfig
 EID.Config.Version = "3.2" -- note: changing this will reset everyone's settings to default!
-EID.ModVersion = 4.87
-EID.ModVersionCommit = "ca654bfa"
+EID.ModVersion = 4.8769
+EID.ModVersionCommit = "~~ONLINE COOP~~"
 EID.DefaultConfig.Version = EID.Config.Version
 EID.isHidden = false
 EID.player = nil -- The primary Player Entity of Player 1
@@ -21,8 +21,8 @@ EID.players = {} -- Both Player Entities of Player 1 if applicable (includes Esa
 EID.coopMainPlayers = {} -- The primary Player Entity for each controller being used
 EID.coopAllPlayers = {} -- Every Player Entity (includes Esau, T.Forgotten)
 EID.controllerIndexes = {} -- A table to map each controller index to their player number for coloring indicators
-EID.isMultiplayer = false -- Used to color P1's highlight/outline indicators (single player just uses white)
-EID.isOnlineMultiplayer = false -- Set to true to disable code functions that might cause desyncs
+EID.isMultiplayer = true -- Used to color P1's highlight/outline indicators (single player just uses white)
+EID.isOnlineMultiplayer = true -- Set to true to disable code functions that might cause desyncs
 EID.BoC = {}
 
 -- general variables
@@ -60,32 +60,32 @@ EID.GameRenderCount = 0
 
 -- Sprite inits
 EID.IconSprite = Sprite()
-EID.IconSprite:Load("gfx/eid_transform_icons.anm2", true)
+EID.IconSprite:Load("scripts/eidonline/resources/gfx/eid_transform_icons.anm2", true)
 
 EID.InlineIconSprite = Sprite()
-EID.InlineIconSprite:Load("gfx/eid_inline_icons.anm2", true)
+EID.InlineIconSprite:Load("scripts/eidonline/resources/gfx/eid_inline_icons.anm2", true)
 EID.InlineIconSprite2 = Sprite()
-EID.InlineIconSprite2:Load("gfx/eid_inline_icons.anm2", true)
+EID.InlineIconSprite2:Load("scripts/eidonline/resources/gfx/eid_inline_icons.anm2", true)
 
 EID.CardPillSprite = Sprite()
-EID.CardPillSprite:Load("gfx/eid_cardspills.anm2", true)
+EID.CardPillSprite:Load("scripts/eidonline/resources/gfx/eid_cardspills.anm2", true)
 
 EID.ItemSprite = Sprite()
-EID.ItemSprite:Load("gfx/005.100_collectible.anm2", true)
+EID.ItemSprite:Load("scripts/eidonline/resources/gfx/005.100_collectible.anm2", true)
 
 EID.PlayerSprite = Sprite()
-EID.PlayerSprite:Load("gfx/eid_player_icons.anm2", true)
+EID.PlayerSprite:Load("scripts/eidonline/resources/gfx/eid_player_icons.anm2", true)
 
 local ArrowSprite = Sprite()
-ArrowSprite:Load("gfx/eid_transform_icons.anm2", true)
+ArrowSprite:Load("scripts/eidonline/resources/gfx/eid_transform_icons.anm2", true)
 ArrowSprite:Play("Arrow", false)
 
 EID.CursorSprite = Sprite()
-EID.CursorSprite:Load("gfx/eid_transform_icons.anm2", true)
+EID.CursorSprite:Load("scripts/eidonline/resources/gfx/eid_transform_icons.anm2", true)
 EID.CursorSprite:Play("Cursor")
 
 local hudBBSprite = Sprite()
-hudBBSprite:Load("gfx/eid_transform_icons.anm2", true)
+hudBBSprite:Load("scripts/eidonline/resources/gfx/eid_transform_icons.anm2", true)
 hudBBSprite:Play("boundingBox")
 
 
@@ -103,50 +103,50 @@ end
 ------- Load all modules and other stuff ------
 
 --transformation infos
-require("descriptions."..EID.GameVersion..".transformations")
+require("eidonline.descriptions."..EID.GameVersion..".transformations")
 --languages
 for _,lang in ipairs(EID.Languages) do
-	require("descriptions."..EID.GameVersion.."."..lang)
+	require("eidonline.descriptions."..EID.GameVersion.."."..lang)
 end
 table.sort(EID.Languages)
 
-pcall(require,"scripts.eid_savegames")
-require("features.eid_mcm")
-require("features.eid_data")
+pcall(require,"eidonline.scripts.eid_savegames")
+require("eidonline.features.eid_mcm")
+require("eidonline.features.eid_data")
 if EID.isRepentancePlus then
-	require("features.eid_xmldata_rep+")
+	require("eidonline.features.eid_xmldata_rep+")
 else
-	require("features.eid_xmldata")
+	require("eidonline.features.eid_xmldata")
 end
-require("features.eid_api")
-require("features.eid_conditionals")
-require("features.eid_modifiers")
-require("features.eid_holdmapdesc")
-require("features.eid_itemprediction")
+require("eidonline.features.eid_api")
+require("eidonline.features.eid_conditionals")
+require("eidonline.features.eid_modifiers")
+require("eidonline.features.eid_holdmapdesc")
+require("eidonline.features.eid_itemprediction")
 
 -- load Repentence descriptions
 if EID.isRepentance then
 	EID.GameVersion = "rep"
 	for _,lang in ipairs(EID.Languages) do
-		local wasSuccessful, err = pcall(require,"descriptions."..EID.GameVersion.."."..lang)
+		local wasSuccessful, err = pcall(require,"eidonline.descriptions."..EID.GameVersion.."."..lang)
 		if not wasSuccessful and not string.find(err, "not found") then
 			Isaac.ConsoleOutput("Load rep "..lang.." failed: "..tostring(err))
 		end
 	end
-	local _, _ = pcall(require,"descriptions."..EID.GameVersion..".transformations")
-	require("features.eid_bagofcrafting")
-	require("features.eid_tmtrainer")
+	local _, _ = pcall(require,"eidonline.descriptions."..EID.GameVersion..".transformations")
+	require("eidonline.features.eid_bagofcrafting")
+	require("eidonline.features.eid_tmtrainer")
 
 	-- Load Repentance+ DLC data 
 	if EID.isRepentancePlus then
 		EID.GameVersion = "rep+"
 		for _,lang in ipairs(EID.Languages) do
-			local wasSuccessful, err = pcall(require,"descriptions."..EID.GameVersion.."."..lang)
+			local wasSuccessful, err = pcall(require,"eidonline.descriptions."..EID.GameVersion.."."..lang)
 			if not wasSuccessful and not string.find(err, "not found") then
 				Isaac.ConsoleOutput("Load rep+ "..lang.." failed: "..tostring(err))
 			end
 		end
-		local _, _ = pcall(require,"descriptions."..EID.GameVersion..".transformations")
+		local _, _ = pcall(require,"eidonline.descriptions."..EID.GameVersion..".transformations")
 	end
 end
 
@@ -162,7 +162,7 @@ function EID:GetCurrentModPath()
 		return string.sub(debug.getinfo(EID.GetCurrentModPath).source,2) .. "/../"
 	end
 	--use some very hacky trickery to get the path to this mod
-	local _, err = pcall(require, "")
+	local _, err = pcall(require, "eidonline")
 	local _, basePathStart = string.find(err, "no file '", 1)
 	local _, modPathStart = string.find(err, "no file '", basePathStart)
 	local modPathEnd, _ = string.find(err, ".lua'", modPathStart)
@@ -173,7 +173,7 @@ function EID:GetCurrentModPath()
 
 	return modPath
 end
-EID.modPath = EID:GetCurrentModPath()
+EID.modPath = "resources/scripts/eidonline/"
 
 EID.font = Font() -- init font object
 EID:fixDefinedFont()
@@ -215,8 +215,8 @@ EID:AddCallback(ModCallbacks.MC_POST_NEW_LEVEL, EID.onNewFloor)
 ------------------------Handle ALT FLOOR CHOICE----------------------------
 
 local questionMarkSprite = Sprite()
-questionMarkSprite:Load("gfx/005.100_collectible.anm2",true)
-questionMarkSprite:ReplaceSpritesheet(1,"gfx/items/collectibles/questionmark.png")
+questionMarkSprite:Load("scripts/eidonline/resources/gfx/005.100_collectible.anm2",true)
+questionMarkSprite:ReplaceSpritesheet(1,"scripts/eidonline/resources/gfx/items/collectibles/questionmark.png")
 questionMarkSprite:LoadGraphics()
 
 function EID:IsAltChoice(pickup)
@@ -860,7 +860,7 @@ function EID:renderUnidentifiedPill(entity)
 end
 
 -- RGB colors for each player's highlights (Red, Blue, Yellow, Green)
-local playerRGB = { {1,0.6,0.6}, {0.5,0.75,1}, {0.9, 0.9, 0.5}, {0.5,1,0.75} }
+local playerRGB = { {1,0.6,0.6}, {0.5,0.75,1}, {0.5,1,0.75}, {0.9, 0.9, 0.5} }
 
 ---@param entity Entity
 function EID:renderIndicator(entity, playerNum)
@@ -1913,11 +1913,11 @@ end
 EID:AddCallback(ModCallbacks.MC_PRE_GAME_EXIT, EID.OnGameExit)
 
 if EID.enableDebug then
-	require("features.eid_debugging")
+	require("eidonline.features.eid_debugging")
 end
 
 -- load repentogon stuff last to allow overrides of functions
-require("features.eid_repentogon")
+require("eidonline.features.eid_repentogon")
 
 Isaac.DebugString("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 Isaac.DebugString("External Item Descriptions v"..EID.ModVersion.."_"..EID.ModVersionCommit.." loaded.")

@@ -17,7 +17,7 @@ Controller.BUTTON_BACK = 14
 Controller.BUTTON_START = 15
 
 -- MOD CONFIG MENU Compatibility
-local MCMLoaded, MCM = pcall(require, "scripts.modconfig")
+local MCMLoaded, MCM = pcall(require, "eidonline.scripts.modconfig")
 EID.MCMCompat_isDisplayingEIDTab = ""
 local MCMCompat_isDisplayingDummyMCMObj = false
 local MCMCompat_oldPermanentObj = nil

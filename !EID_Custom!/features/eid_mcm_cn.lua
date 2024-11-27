@@ -1,4 +1,4 @@
-local MCMLoaded, MCM = pcall(require, "scripts.modconfig")
+local MCMLoaded, MCM = pcall(require, "eidonline.scripts.modconfig")
 -- support for Mod Config Menu Chinese(Mod配置菜单（中文版）)
 -- translate mod config menu to chinese
 if MCMLoaded and MCM and MCM.i18n == "Chinese" then

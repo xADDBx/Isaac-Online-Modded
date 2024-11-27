@@ -158,7 +158,7 @@ EID.TextReplacementPairs = {
 
 }
 local controllerSprites = Sprite()
-controllerSprites:Load("gfx/ui/buttons.anm2", true)
+controllerSprites:Load("scripts/eidonline/resources/gfx/ui/buttons.anm2", true)
 local function getControllerSprite()
 	return (EID.player and EID.player.ControllerIndex > 0 and controllerSprites) or EID.InlineIconSprite
 end

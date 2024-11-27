@@ -1,6 +1,6 @@
 local game = Game()
 
-require("features.eid_bagofcrafting_search")
+require("eidonline.features.eid_bagofcrafting_search")
 
 --these aren't local so that they can be saved and reloaded, or cleared in the Mod Config Menu
 -- EID.BoC is defined in eid_data.lua
