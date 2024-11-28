@@ -1059,65 +1059,71 @@ EID.RecheckVoid = false
 EID.ShouldCheckWisp = false
 
 function EID:onGameUpdate()
-	EID.GameUpdateCount = EID.GameUpdateCount + 1
-	EID:checkPlayersForMissingItems()
-	EID:evaluateQueuedItems()
-	EID:evaluateHeldPill()
-	
-	EID.TabHeldLastFrame = EID.TabHeldThisFrame
-	EID.TabHeldThisFrame = EID:PlayersActionPressed(EID.Config["BagOfCraftingToggleKey"])
+    local success, err = pcall(function()
+		EID.GameUpdateCount = EID.GameUpdateCount + 1
+		EID:checkPlayersForMissingItems()
+		EID:evaluateQueuedItems()
+		EID:evaluateHeldPill()
+		
+		EID.TabHeldLastFrame = EID.TabHeldThisFrame
+		EID.TabHeldThisFrame = EID:PlayersActionPressed(EID.Config["BagOfCraftingToggleKey"])
 
-	if collSpawned then
-		collSpawned = false
+		if collSpawned then
+			collSpawned = false
 
-		local curPositions = {}
-		for _, entity in ipairs(Isaac.FindByType(5, 100, -1, true, false)) do
-			-- Flag pedestals as being describable on frame 0 (for Tainted Isaac / Glitched Crown type pedestals to not be non-existent for a frame)
-			EID:setEntityData(entity, "EID_DescribeOnFirstFrame", true)
-			-- Fix Overlapping Pedestals if a collectible spawned this frame (needed for Mega Chest)
-			local pos = entity.Position
-			for _, otherPos in ipairs(curPositions) do
-				if pos:Distance(otherPos[2]) == 0 then
-					EID:setEntityData(entity, "EID_RenderOffset", Vector(10,0))
-					EID:setEntityData(otherPos[1], "EID_RenderOffset", Vector(-10,0))
+			local curPositions = {}
+			for _, entity in ipairs(Isaac.FindByType(5, 100, -1, true, false)) do
+				-- Flag pedestals as being describable on frame 0 (for Tainted Isaac / Glitched Crown type pedestals to not be non-existent for a frame)
+				EID:setEntityData(entity, "EID_DescribeOnFirstFrame", true)
+				-- Fix Overlapping Pedestals if a collectible spawned this frame (needed for Mega Chest)
+				local pos = entity.Position
+				for _, otherPos in ipairs(curPositions) do
+					if pos:Distance(otherPos[2]) == 0 then
+						EID:setEntityData(entity, "EID_RenderOffset", Vector(10,0))
+						EID:setEntityData(otherPos[1], "EID_RenderOffset", Vector(-10,0))
+					end
 				end
+				table.insert(curPositions, {entity, entity.Position})
 			end
-			table.insert(curPositions, {entity, entity.Position})
-		end
 
-		EID.RecheckVoid = true
-	end
-	
-	-- Check player items for starting items
-	if EID.ShouldCheckStartingItems then
-		EID:UpdateAllPlayerPassiveItems()
-		EID:SetOldestItemIndex()
-		EID.ShouldCheckStartingItems = false
-	end
-	
-	if EID.isRepentance then
-		EID:WatchForGlitchedCrown()
-		EID:UpdateWildCardEffects()
-		if EID.GameUpdateCount % 10 == 0 then
-			-- Check wisp for adding reminder when using lemegeton
-			if EID.ShouldCheckWisp then
-				EID:UpdateAllPlayerLemegetonWisps()
-				EID.ShouldCheckWisp = false
-			end
-			-- Remove Crane Game item data if it's giving the prize out
-			for _, crane in ipairs(Isaac.FindByType(6, 16, -1, true, false)) do
-				if EID.CraneItemType[tostring(crane.InitSeed)] then
-					if crane:GetSprite():IsPlaying("Prize") then
-						EID.CraneItemType[tostring(crane.InitSeed)] = nil
-					-- Pair the Crane Game's new drop seed with the latest collectible ID it's gotten
-					-- (fixes Glowing Hour Glass rewinds)
-					elseif EID.CraneItemType[crane.InitSeed.."Drop"..crane.DropSeed] == nil then
-						EID.CraneItemType[crane.InitSeed.."Drop"..crane.DropSeed] = EID.CraneItemType[tostring(crane.InitSeed)]
+			EID.RecheckVoid = true
+		end
+		
+		-- Check player items for starting items
+		if EID.ShouldCheckStartingItems then
+			EID:UpdateAllPlayerPassiveItems()
+			EID:SetOldestItemIndex()
+			EID.ShouldCheckStartingItems = false
+		end
+		
+		if EID.isRepentance then
+			EID:WatchForGlitchedCrown()
+			EID:UpdateWildCardEffects()
+			if EID.GameUpdateCount % 10 == 0 then
+				-- Check wisp for adding reminder when using lemegeton
+				if EID.ShouldCheckWisp then
+					EID:UpdateAllPlayerLemegetonWisps()
+					EID.ShouldCheckWisp = false
+				end
+				-- Remove Crane Game item data if it's giving the prize out
+				for _, crane in ipairs(Isaac.FindByType(6, 16, -1, true, false)) do
+					if EID.CraneItemType[tostring(crane.InitSeed)] then
+						if crane:GetSprite():IsPlaying("Prize") then
+							EID.CraneItemType[tostring(crane.InitSeed)] = nil
+						-- Pair the Crane Game's new drop seed with the latest collectible ID it's gotten
+						-- (fixes Glowing Hour Glass rewinds)
+						elseif EID.CraneItemType[crane.InitSeed.."Drop"..crane.DropSeed] == nil then
+							EID.CraneItemType[crane.InitSeed.."Drop"..crane.DropSeed] = EID.CraneItemType[tostring(crane.InitSeed)]
+						end
 					end
 				end
 			end
 		end
-	end
+	end)
+    if not success then
+        -- Log or handle the error gracefully
+        Isaac.DebugString("Error in EID:onGameUpdate: " .. tostring(err))
+    end
 end
 EID:AddCallback(ModCallbacks.MC_POST_UPDATE, EID.onGameUpdate)
 
