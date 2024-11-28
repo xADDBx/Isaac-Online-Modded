@@ -7,24 +7,9 @@ local function log(message)
 end
 
 local RECOMMENDED_SHIFT_IDX = 35
-
--- Custom random number generator that doesn't affect the global seed
-local function createRandomGenerator(seed)
-  local m = 2^31
-  local a = 1103515245
-  local c = 12345
-  local state = seed or os.time()
-  return function()
-    state = (a * state + c) % m
-    return state / m
-  end
-end
-
-local myRandomGenerator = createRandomGenerator()
-
-local function RandomInt(max)
-  return math.floor(myRandomGenerator() * max)
-end
+-- RNG object for good rng that doesn't need to be seeded
+local randomRNG = RNG()
+randomRNG:SetSeed((os.time() // 2) + 1, RECOMMENDED_SHIFT_IDX)
 
 local SaveState = {}
 
@@ -89,18 +74,24 @@ local currentVoidMusicId = 0
 -- Randomized room music
 local RandomAltMusic = nil
 local function updateRandomAltMusic()
+  local rng = RNG()
   if ModConfigSettings["alt music mode"] == 1 then
-    local floorRandom = createRandomGenerator(os.time())
-    RandomAltMusic = {
-      ["Arcade"] = math.floor(floorRandom() * 10),
-      ["Shop"] = math.floor(floorRandom() * 20),
-    }
+    local game = Game()
+    local seeds = game:GetSeeds()
+    rng:SetSeed(seeds:GetStageSeed(game:GetLevel():GetStage()), RECOMMENDED_SHIFT_IDX)
   else
-    RandomAltMusic = {
-      ["Arcade"] = RandomInt(10),
-      ["Shop"] = RandomInt(20),
-    }
+    local seed = Random()
+    if seed < 1 or seed > 4294967295 then
+      seed = 256
+    end
+    rng:SetSeed(randomRNG:RandomInt(4294967295) + 1, RECOMMENDED_SHIFT_IDX)
   end
+  RandomAltMusic = {
+    ["Arcade"] = rng:RandomInt(10),
+    ["Shop"] = rng:RandomInt(20),
+    -- ["Arcade"] = 1,
+    -- ["Shop"] = 1,
+  }
 end
 
 updateRandomAltMusic()
@@ -155,7 +146,7 @@ local function init()
         local stage = Game():GetLevel():GetStage()
         if stage == LevelStage.STAGE6 then
           -- Megasatan music is about to play
-          if (RandomInt(2) == 0 or ModConfigSettings["mega satan"] == 1)
+          if (randomRNG:RandomInt(2) == 0 or ModConfigSettings["mega satan"] == 1)
               and ModConfigSettings["mega satan"] ~= 2 then
             return Isaac.GetMusicIdByName("Mega Satan")
           else
@@ -176,7 +167,7 @@ local function init()
             if MusicManager():GetCurrentMusicID() == currentVoidMusicId then
               return 0
             else
-              currentVoidMusicId = VoidMusic[RandomInt(7) + 2]
+              currentVoidMusicId = VoidMusic[randomRNG:RandomInt(7) + 2]
               return currentVoidMusicId
             end
           end
@@ -188,7 +179,7 @@ local function init()
       -- Void boss music
       MMC.AddMusicCallback(abm3p, function()
         if Game():GetLevel():GetStage() == LevelStage.STAGE7 and ModConfigSettings["void bosses"] then
-          return Isaac.GetMusicIdByName("The Void Boss " .. (RandomInt(5) + 1))
+          return Isaac.GetMusicIdByName("The Void Boss " .. randomRNG:RandomInt(5) + 1)
         else
           return nil
         end
@@ -390,7 +381,7 @@ local function init()
 
         --unique Mega Satan music
         if stage == LevelStage.STAGE6 and currentMusic == Music.MUSIC_SATAN_BOSS then
-          if (RandomInt(2) == 0 or ModConfigSettings["mega satan"] == 1)
+          if (randomRNG:RandomInt(2) == 0 or ModConfigSettings["mega satan"] == 1)
               and ModConfigSettings["mega satan"] ~= 2 then
             MusicM:Play(Isaac.GetMusicIdByName("Mega Satan"), 0)
             MusicM:UpdateVolume()
@@ -421,7 +412,7 @@ local function init()
               or not ModConfigSettings["void stage"] then
             MusicM:Crossfade(VoidMusic[1])
           else
-            MusicM:Crossfade(VoidMusic[RandomInt(7) + 2])
+            MusicM:Crossfade(VoidMusic[randomRNG:RandomInt(7) + 2])
           end
         end
 
@@ -429,7 +420,8 @@ local function init()
         if Game():GetLevel():GetStage() == LevelStage.STAGE7
             and (currentMusic == Music.MUSIC_BOSS or currentMusic == Music.MUSIC_BOSS2)
             and ModConfigSettings["void bosses"] then
-          local trackId = Isaac.GetMusicIdByName("The Void Boss " .. (RandomInt(5) + 1))
+          local trackId = Isaac.GetMusicIdByName("The Void Boss " .. randomRNG:RandomInt(5) + 1)
+          --trackId = Isaac.GetMusicIdByName("The Void Boss " .. 5)
           MusicM:Crossfade(trackId)
         end
       end)
