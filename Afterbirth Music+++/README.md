@@ -8,5 +8,5 @@ randomRNG:SetSeed((Random() // 2) + 1, RECOMMENDED_SHIFT_IDX)
 ```
 =>
 ```
-randomRNG:SetSeed((os.time() // 2) + 1, RECOMMENDED_SHIFT_IDX)
+randomRNG:SetSeed((Game():GetFrameCount() // 2) + 1, RECOMMENDED_SHIFT_IDX)
 ```

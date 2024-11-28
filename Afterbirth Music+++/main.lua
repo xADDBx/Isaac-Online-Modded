@@ -9,7 +9,7 @@ end
 local RECOMMENDED_SHIFT_IDX = 35
 -- RNG object for good rng that doesn't need to be seeded
 local randomRNG = RNG()
-randomRNG:SetSeed((os.time() // 2) + 1, RECOMMENDED_SHIFT_IDX)
+randomRNG:SetSeed((Game():GetFrameCount() // 2) + 1, RECOMMENDED_SHIFT_IDX)
 
 local SaveState = {}
 
