@@ -13,7 +13,12 @@
 		<AnalysisLevel>preview</AnalysisLevel>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<DebugType>embedded</DebugType>
+		<ApplicationIcon>Icon.ico</ApplicationIcon>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <Content Include="Icon.ico" />
+	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="GameFinder" Version="4.3.3" />
 	</ItemGroup>
