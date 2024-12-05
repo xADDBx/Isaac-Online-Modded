@@ -1,0 +1,44 @@
+name: Build Mod on Push
+
+on:
+  push:
+
+jobs:
+
+  build:
+    if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.x'
+
+      - name: Restore dependencies
+        run: dotnet restore ./IsaacOnlineModded/IsaacOnlineModded.csproj
+
+      - name: Publish project
+        run: dotnet publish ./IsaacOnlineModded/IsaacOnlineModded.csproj /p:PublishProfile=FolderProfile
+        
+      - name: Publish project self-contained
+        run: dotnet publish ./IsaacOnlineModded/IsaacOnlineModded.csproj /p:PublishProfile=FolderProfile2
+          
+      - name: Compress Self-Contained Binaries
+        run: |
+          powershell Compress-Archive -Path ./IsaacOnlineModded/BinariesSelfContained/* -DestinationPath ./BinariesWithRuntime.zip
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: IsaacOnlineModded
+          path: ./IsaacOnlineModded/Binaries/IsaacOnlineModded.exe
+
+      - name: Upload artifact self-contained
+        uses: actions/upload-artifact@v4
+        with:
+          name: IsaacOnlineModded (with .NET Runtime)
+          path: ./BinariesWithRuntime.zip
