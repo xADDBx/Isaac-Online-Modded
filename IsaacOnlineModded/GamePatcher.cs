@@ -92,7 +92,7 @@ namespace IsaacModInstaller {
             }
 
             // Modify the bytes at the found index
-            // For example, replace the two jump instructions (0x74, 0x1E) and (0x74, 0x12) with NOPs (0x90, 0x90)
+            // For example, replace the three jump instructions (0x74, 0x2A) (0x74, 0x1E) and (0x74, 0x12) with NOPs (0x90, 0x90)
             exeBytes[index + 3] = 0x90;
             exeBytes[index + 4] = 0x90;
             exeBytes[index + 8] = 0x90;
