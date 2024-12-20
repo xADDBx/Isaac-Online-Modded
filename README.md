@@ -2,6 +2,8 @@
 
 This tool allows you to patch the game binary of **The Binding of Isaac** to enable mods in online co-op play without the need to disable them beforehand. 
 
+This tool also allows you to modify the External Item Descriptions mod in a way to enable using it in coop.
+
 **Note:** You will need to run the patch again each time the game updates.
 
 ## Warning
