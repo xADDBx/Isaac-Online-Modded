@@ -5,7 +5,8 @@
     <Grid Margin="10">
         <!-- Define Columns -->
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="617"/>
             <!-- TextBox column -->
             <ColumnDefinition Width="Auto"/>
             <!-- Browse button column -->
@@ -14,25 +15,27 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <!-- Game Path label -->
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto" MinHeight="41"/>
             <!-- TextBox and Browse button -->
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto" MinHeight="23.455"/>
             <!-- Patch Game button -->
             <RowDefinition Height="Auto"/>
             <!-- Status label -->
         </Grid.RowDefinitions>
 
         <!-- Game Path Label -->
-        <TextBlock Text="Game Path:" VerticalAlignment="Center" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"/>
+        <TextBlock Text="Game Path:" VerticalAlignment="Center" Grid.Column="0" Grid.ColumnSpan="2" Height="16"/>
 
         <!-- TextBox for Game Path -->
-        <TextBox Name="txtGamePath" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="0,0,5,0"/>
+        <TextBox Name="txtGamePath" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Center" Margin="0,0,5,0" Height="26"/>
 
         <!-- Browse Button -->
-        <Button Content="Browse" Grid.Row="1" Grid.Column="1" Width="75" Click="BrowseButton_Click"/>
+        <Button Content="Browse" Grid.Row="1" Grid.Column="2" Click="BrowseButton_Click" Margin="12,8,12,8"/>
 
         <!-- Patch Game Button -->
-        <Button Content="Patch Game" Grid.Row="2" Grid.Column="0" Width="100" HorizontalAlignment="Left" Click="PatchButton_Click"/>
+        <Button Content="Patch Game" Grid.Row="2" Width="100" HorizontalAlignment="Left" Click="PatchButton_Click"/>
+        <!-- Patch EID Button -->
+        <Button Content="Make External Item Descriptions Mod work in Coop" Grid.Column="1"  Grid.Row="2" Width="300" HorizontalAlignment="Left" Click="EIDButton_Click"/>
 
         <!-- Status Label -->
         <Label Name="lblStatus" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Content="" Foreground="Red" Margin="0,10,0,0"/>
