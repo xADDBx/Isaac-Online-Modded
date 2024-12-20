@@ -12,8 +12,8 @@ EID.isRepentance = REPENTANCE or EID.isRepentancePlus -- REPENTANCE variable can
 require("eid_config")
 EID.Config = EID.UserConfig
 EID.Config.Version = "3.2" -- note: changing this will reset everyone's settings to default!
-EID.ModVersion = 4.88
-EID.ModVersionCommit = "b275d168"
+EID.ModVersion = 4.89
+EID.ModVersionCommit = "73a5cce"
 EID.DefaultConfig.Version = EID.Config.Version
 EID.isHidden = false
 EID.player = nil -- The primary Player Entity of Player 1
@@ -21,8 +21,8 @@ EID.players = {} -- Both Player Entities of Player 1 if applicable (includes Esa
 EID.coopMainPlayers = {} -- The primary Player Entity for each controller being used
 EID.coopAllPlayers = {} -- Every Player Entity (includes Esau, T.Forgotten)
 EID.controllerIndexes = {} -- A table to map each controller index to their player number for coloring indicators
-EID.isMultiplayer = true -- Used to color P1's highlight/outline indicators (single player just uses white)
-EID.isOnlineMultiplayer = true -- Set to true to disable code functions that might cause desyncs
+EID.isMultiplayer = false -- Used to color P1's highlight/outline indicators (single player just uses white)
+EID.isOnlineMultiplayer = false -- Set to true to disable code functions that might cause desyncs
 EID.BoC = {}
 
 -- general variables
@@ -1058,8 +1058,7 @@ local collSpawned = false
 EID.RecheckVoid = false
 EID.ShouldCheckWisp = false
 
-function EID:onGameUpdate()    
-	local success, err = pcall(function()
+function EID:onGameUpdate()
 	EID.GameUpdateCount = EID.GameUpdateCount + 1
 	EID:checkPlayersForMissingItems()
 	EID:evaluateQueuedItems()
@@ -1119,7 +1118,6 @@ function EID:onGameUpdate()
 			end
 		end
 	end
-	end)
 end
 EID:AddCallback(ModCallbacks.MC_POST_UPDATE, EID.onGameUpdate)
 
