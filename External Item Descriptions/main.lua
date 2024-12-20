@@ -21,8 +21,8 @@ EID.players = {} -- Both Player Entities of Player 1 if applicable (includes Esa
 EID.coopMainPlayers = {} -- The primary Player Entity for each controller being used
 EID.coopAllPlayers = {} -- Every Player Entity (includes Esau, T.Forgotten)
 EID.controllerIndexes = {} -- A table to map each controller index to their player number for coloring indicators
-EID.isMultiplayer = false -- Used to color P1's highlight/outline indicators (single player just uses white)
-EID.isOnlineMultiplayer = false -- Set to true to disable code functions that might cause desyncs
+EID.isMultiplayer = true -- Used to color P1's highlight/outline indicators (single player just uses white)
+EID.isOnlineMultiplayer = true -- Set to true to disable code functions that might cause desyncs
 EID.BoC = {}
 
 -- general variables

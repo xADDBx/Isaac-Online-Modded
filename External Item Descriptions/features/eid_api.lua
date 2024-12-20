@@ -2321,6 +2321,14 @@ function EID:UpdateAllPlayerPassiveItems()
 			return listUpdatedForPlayers -- dont evaluate when bad data is present
 		end
 		
+		local stage = Game():GetLevel():GetStage()
+		if stage == nil then
+			return listUpdatedForPlayers
+		end
+		if EID.isOnlineMultiplayer and (stage >= 13 or stage < 1) then
+			return listUpdatedForPlayers -- Calling player:HasCollectible can cause a crash after beating The Beast in R+ Coop
+		end
+		
 		local playerNum = EID:getPlayerID(player, true)
 		
 		-- remove items the player no longer has. reverse iteration to make deletion easier
