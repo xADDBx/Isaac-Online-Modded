@@ -69,16 +69,14 @@ namespace IsaacModInstaller {
             byte[] exeBytes = File.ReadAllBytes(gamePath);
 
             // Define the byte pattern to search for
-            byte[] pattern = new byte[]
-            {
+            byte[] pattern = [
         0x83, 0xE8, 0x02, 0x74, 0x2A, 0x83, 0xE8, 0x01, 0x74, 0x1E, 0x83, 0xE8, 0x01, 0x74, 0x12, 0x32, 0xC0,
         0x8B, 0x4D, 0xF4, 0x64, 0x89, 0x0D, 0x00, 0x00, 0x00, 0x00
-            }; 
-            byte[] alreadyPatchedPattern = new byte[]
-            {
+            ]; 
+            byte[] alreadyPatchedPattern = [
         0x83, 0xE8, 0x02, 0x90, 0x90, 0x83, 0xE8, 0x01, 0x90, 0x90, 0x83, 0xE8, 0x01, 0x90, 0x90, 0x32, 0xC0,
         0x8B, 0x4D, 0xF4, 0x64, 0x89, 0x0D, 0x00, 0x00, 0x00, 0x00
-            };
+            ];
 
             // Search for the pattern in the executable
             int index = FindPattern(exeBytes, pattern);
@@ -106,6 +104,32 @@ namespace IsaacModInstaller {
             return true;
         }
 
+        public static bool PatchGameExecutableAnalytics(string gamePath) {
+            byte[] exeBytes = File.ReadAllBytes(gamePath);
+            // Define the byte pattern to search for
+            byte[] pattern = [0x55, 0x8B, 0xEC, 0x83, 0xEC, 0x10, 0x53, 0x56, 0x57, 0xFF, 0x15];
+            byte[] alreadyPatchedPattern = [0xC3, 0x8B, 0xEC, 0x83, 0xEC, 0x10, 0x53, 0x56, 0x57, 0xFF, 0x15];
+
+            // Search for the pattern in the executable
+            int index = FindPattern(exeBytes, pattern);
+
+            if (index == -1) {
+                if (FindPattern(exeBytes, alreadyPatchedPattern) > -1) {
+                    return false;
+                } else {
+                    throw new Exception("Pattern not found in the executable. Maybe this tool is outdated?");
+                }
+            }
+
+            // Modify the bytes at the found index
+            // Replace the first PUSH of the function with a ret
+            exeBytes[index] = 0xC3;
+
+            // Write the modified bytes back to the executable
+            File.WriteAllBytes(gamePath, exeBytes);
+
+            return true;
+        }
         private static int FindPattern(byte[] body, byte[] pattern) {
             for (int i = 0; i < body.Length - pattern.Length; i++) {
                 bool found = true;

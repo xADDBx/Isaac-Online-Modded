@@ -67,8 +67,9 @@ namespace IsaacModInstaller {
 
             try {
                 bool success = GamePatcher.PatchGameExecutable(gamePath);
+                bool success2 = GamePatcher.PatchGameExecutableAnalytics(gamePath);
 
-                if (success) {
+                if (success || success2) {
                     lblStatus.Content = "Game patched successfully!";
                     lblStatus.Foreground = System.Windows.Media.Brushes.Green;
                 } else {
