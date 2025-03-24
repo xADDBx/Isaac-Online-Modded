@@ -18,15 +18,11 @@ namespace IsaacModInstaller {
         public static bool Patch(string EIDPath) {
             var mainLuaPath = Path.Combine(EIDPath, "main.lua");
             string[] lines = File.ReadAllLines(mainLuaPath);
-            bool mainLuaModified = lines.Any(line => line.Contains("EID.isMultiplayer = true")) && lines.Any(line => line.Contains("EID.isOnlineMultiplayer = true"));
+            bool mainLuaModified = lines.Any(line => line.Contains("EID.isMultiplayer = true"));
             if (!mainLuaModified) {
                 for (int i = 0; i < lines.Length; i++) {
                     if (lines[i].Contains("EID.isMultiplayer = false -- Used to color P1's highlight/outline indicators (single player just uses white)")) {
                         lines[i] = lines[i].Replace("EID.isMultiplayer = false", "EID.isMultiplayer = true");
-                    }
-
-                    if (lines[i].Contains("EID.isOnlineMultiplayer = false -- Set to true to disable code functions that might cause desyncs")) {
-                        lines[i] = lines[i].Replace("EID.isOnlineMultiplayer = false", "EID.isOnlineMultiplayer = true");
                     }
                 }
                 File.WriteAllLines(mainLuaPath, lines);
