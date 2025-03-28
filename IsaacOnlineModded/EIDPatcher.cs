@@ -13,7 +13,17 @@ namespace IsaacModInstaller {
                 "return listUpdatedForPlayers -- Calling player:HasCollectible can cause a crash after beating The Beast in R+ Coop",
                 "end",
                 ""
-                ]
+            ],
+            [
+                "local stage = Game():GetLevel():GetStage()",
+                "if stage == nil then",
+                "return listUpdatedForPlayers",
+                "end",
+                "if EID.isOnlineMultiplayer and (stage >= 13 or stage < 1) then",
+                "return listUpdatedForPlayers -- Calling player:HasCollectible can cause a crash after beating The Beast in R+ Coop",
+                "end",
+                "",
+            ],  
             ];
         public static bool Patch(string EIDPath) {
             var mainLuaPath = Path.Combine(EIDPath, "main.lua");
@@ -38,7 +48,7 @@ namespace IsaacModInstaller {
                 eidApiModified = lineList[firstLine + 1].Contains("if stage == nil then") 
                               && lineList[firstLine + 2].Contains("return listUpdatedForPlayers")
                               && lineList[firstLine + 3].Contains("end")
-                              && lineList[firstLine + 4].Contains("if EID.isOnlineMultiplayer and (stage >= 13 or stage < 1) then")
+                              && lineList[firstLine + 4].Contains("if (stage >= 13 or stage < 1) then")
                               && lineList[firstLine + 5].Contains("return listUpdatedForPlayers")
                               && lineList[firstLine + 6].Contains("end");
             }
@@ -49,7 +59,7 @@ namespace IsaacModInstaller {
                 lineList.Insert(threeBeforePatch + 4, "\t\tif stage == nil then");
                 lineList.Insert(threeBeforePatch + 5, "\t\t\treturn listUpdatedForPlayers");
                 lineList.Insert(threeBeforePatch + 6, "\t\tend");
-                lineList.Insert(threeBeforePatch + 7, "\t\tif EID.isOnlineMultiplayer and (stage >= 13 or stage < 1) then");
+                lineList.Insert(threeBeforePatch + 7, "\t\tif (stage >= 13 or stage < 1) then");
                 lineList.Insert(threeBeforePatch + 8, "\t\t\treturn listUpdatedForPlayers -- Calling player:HasCollectible can cause a crash after beating The Beast in R+ Coop");
                 lineList.Insert(threeBeforePatch + 9, "\t\tend");
                 File.WriteAllLines(eidAPIPath, lineList);
