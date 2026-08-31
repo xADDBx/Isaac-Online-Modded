@@ -1,43 +1,46 @@
-﻿<Window x:Class="IsaacModInstaller.MainWindow"
+<Window x:Class="IsaacModInstaller.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Isaac Mod Installer" Height="200" Width="842" MinWidth="400" MinHeight="200">
-    <Grid Margin="10">
-        <!-- Define Columns -->
+        Title="Isaac Online Modded" Height="260" Width="842" MinWidth="600" MinHeight="260">
+    <Grid Margin="12">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-            <ColumnDefinition Width="617"/>
-            <!-- TextBox column -->
+            <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="Auto"/>
-            <!-- Browse button column -->
         </Grid.ColumnDefinitions>
-        <!-- Define Rows -->
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <!-- Game Path label -->
-            <RowDefinition Height="Auto" MinHeight="41"/>
-            <!-- TextBox and Browse button -->
-            <RowDefinition Height="Auto" MinHeight="23.455"/>
-            <!-- Patch Game button -->
             <RowDefinition Height="Auto"/>
-            <!-- Status label -->
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Game Path Label -->
-        <TextBlock Text="Game Path:" VerticalAlignment="Center" Grid.Column="0" Grid.ColumnSpan="2" Height="16"/>
+        <TextBlock Text="Game Path:"/>
+        <TextBox Name="txtGamePath" Grid.Row="1" Height="26" Margin="0,5,8,8"
+                 VerticalContentAlignment="Center" TextChanged="GamePath_TextChanged"/>
+        <Button Grid.Row="1" Grid.Column="1" Content="Browse" Width="80" Margin="0,5,0,8"
+                Click="BrowseButton_Click"/>
 
-        <!-- TextBox for Game Path -->
-        <TextBox Name="txtGamePath" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Center" Margin="0,0,5,0" Height="26"/>
+        <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,0,0,10">
+            <Button Content="Patch Game" Width="110" Click="PatchButton_Click"/>
+            <Button Name="btnPatchCoopCharacters" Content="Patch Coop Characters (Optional)" Width="220"
+                    Margin="10,0,0,0" Click="CoopCharactersButton_Click"
+                    ToolTip="Requires the Coop patch."/>
+            <Button Content="Patch External Item Descriptions" Width="220" Margin="10,0,0,0"
+                    Click="EIDButton_Click"/>
+        </StackPanel>
 
-        <!-- Browse Button -->
-        <Button Content="Browse" Grid.Row="1" Grid.Column="2" Click="BrowseButton_Click" Margin="12,8,12,8"/>
+        <Border Grid.Row="3" Grid.ColumnSpan="2" BorderBrush="#D0D0D0" BorderThickness="1" Padding="8">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="EID Patched: "/>
+                <TextBlock Name="txtEidPatchStatus" FontWeight="SemiBold" Margin="0,0,24,0"/>
+                <TextBlock Text="Coop Patched: "/>
+                <TextBlock Name="txtCoopPatchStatus" FontWeight="SemiBold" Margin="0,0,24,0"/>
+                <TextBlock Text="Coop Characters Patched: "/>
+                <TextBlock Name="txtCoopCharactersPatchStatus" FontWeight="SemiBold"/>
+            </StackPanel>
+        </Border>
 
-        <!-- Patch Game Button -->
-        <Button Content="Patch Game" Grid.Row="2" Width="100" HorizontalAlignment="Left" Click="PatchButton_Click"/>
-        <!-- Patch EID Button -->
-        <Button Content="Make External Item Descriptions Mod work in Coop" Grid.Column="1"  Grid.Row="2" Width="300" HorizontalAlignment="Left" Click="EIDButton_Click"/>
-
-        <!-- Status Label -->
-        <Label Name="lblStatus" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Content="" Foreground="Red" Margin="0,10,0,0"/>
+        <TextBlock Name="txtStatus" Grid.Row="4" Grid.ColumnSpan="2" Margin="0,10,0,0" TextWrapping="Wrap"/>
     </Grid>
 </Window>

@@ -1,98 +1,140 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace IsaacModInstaller {
     public static class EIDPatcher {
-        private static List<string[]> oldPatches = [
-            [
-                "if EID.isOnlineMultiplayer and Game():GetLevel():GetStage() >= LevelStage.Home then",
-                "return listUpdatedForPlayers -- Calling player:HasCollectible can cause a crash after beating The Beast in R+ Coop",
-                "end",
-                ""
-            ],
-            [
-                "local stage = Game():GetLevel():GetStage()",
-                "if stage == nil then",
-                "return listUpdatedForPlayers",
-                "end",
-                "if EID.isOnlineMultiplayer and (stage >= 13 or stage < 1) then",
-                "return listUpdatedForPlayers -- Calling player:HasCollectible can cause a crash after beating The Beast in R+ Coop",
-                "end",
+        private const string Anchor = "return listUpdatedForPlayers -- dont evaluate when bad data is present";
+        private const string Marker = "-- IsaacOnlineModded: avoid invalid player access after the run ends";
+        private static readonly string[] Guard = [
+            Marker,
+            "local stage = Game():GetLevel():GetStage()",
+            "if stage == nil or stage >= 13 or stage < 1 then",
+            "return listUpdatedForPlayers",
+            "end",
+        ];
+
+        public static PatchStatus GetPatchStatus(string eidPath) {
+            LuaDocument document = ReadDocument(GetApiPath(eidPath));
+            int anchorIndex = FindUniqueAnchor(document.Lines);
+            if (anchorIndex < 0)
+                return PatchStatus.Unsupported;
+            return HasStageGuard(document.Lines, anchorIndex) ? PatchStatus.Patched : PatchStatus.NotPatched;
+        }
+
+        public static bool Patch(string eidPath) {
+            string path = GetApiPath(eidPath);
+            LuaDocument document = ReadDocument(path);
+            int anchorIndex = FindUniqueAnchor(document.Lines);
+            if (anchorIndex < 0)
+                throw new InvalidOperationException("The installed EID version is missing a unique patch location.");
+            if (HasStageGuard(document.Lines, anchorIndex))
+                return false;
+
+            int blockEnd = -1;
+            for (int i = anchorIndex + 1; i < Math.Min(document.Lines.Count, anchorIndex + 4); i++) {
+                if (document.Lines[i].Trim() == "end") {
+                    blockEnd = i;
+                    break;
+                }
+            }
+            if (blockEnd < 0)
+                throw new InvalidOperationException("Could not locate the EID player validation block.");
+
+            document.Lines.InsertRange(blockEnd + 1, [
                 "",
-            ],  
-            ];
-        public static bool Patch(string EIDPath) {
-            var mainLuaPath = Path.Combine(EIDPath, "main.lua");
-            string[] lines = File.ReadAllLines(mainLuaPath);
-            bool mainLuaModified = lines.Any(line => line.Contains("EID.isMultiplayer = true"));
-            if (!mainLuaModified) {
-                for (int i = 0; i < lines.Length; i++) {
-                    if (lines[i].Contains("EID.isMultiplayer = false -- Used to color P1's highlight/outline indicators (single player just uses white)")) {
-                        lines[i] = lines[i].Replace("EID.isMultiplayer = false", "EID.isMultiplayer = true");
-                    }
-                }
-                File.WriteAllLines(mainLuaPath, lines);
-            }
-            var eidAPIPath = Path.Combine(EIDPath, "features", "eid_api.lua");
-            lines = File.ReadAllLines(eidAPIPath);
-            var lineList = lines.ToList();
-            lineList = RemoveOldPatches(lineList);
-            bool isFirstContained = lineList.Any(line => line.Contains("local stage = Game():GetLevel():GetStage()"));
-            bool eidApiModified = false;
-            if (isFirstContained) {
-                int firstLine = lineList.IndexOf(lines.First(line => line.Contains("local stage = Game():GetLevel():GetStage()")));
-                eidApiModified = lineList[firstLine + 1].Contains("if stage == nil then") 
-                              && lineList[firstLine + 2].Contains("return listUpdatedForPlayers")
-                              && lineList[firstLine + 3].Contains("end")
-                              && lineList[firstLine + 4].Contains("if (stage >= 13 or stage < 1) then")
-                              && lineList[firstLine + 5].Contains("return listUpdatedForPlayers")
-                              && lineList[firstLine + 6].Contains("end");
-            }
-            if (!eidApiModified) {
-                int threeBeforePatch = lineList.IndexOf(lines.First(line => line.Contains("return listUpdatedForPlayers -- dont evaluate when bad data is present")));
-                lineList.Insert(threeBeforePatch + 2, "\t\t");
-                lineList.Insert(threeBeforePatch + 3, "\t\tlocal stage = Game():GetLevel():GetStage()");
-                lineList.Insert(threeBeforePatch + 4, "\t\tif stage == nil then");
-                lineList.Insert(threeBeforePatch + 5, "\t\t\treturn listUpdatedForPlayers");
-                lineList.Insert(threeBeforePatch + 6, "\t\tend");
-                lineList.Insert(threeBeforePatch + 7, "\t\tif (stage >= 13 or stage < 1) then");
-                lineList.Insert(threeBeforePatch + 8, "\t\t\treturn listUpdatedForPlayers -- Calling player:HasCollectible can cause a crash after beating The Beast in R+ Coop");
-                lineList.Insert(threeBeforePatch + 9, "\t\tend");
-                File.WriteAllLines(eidAPIPath, lineList);
-            }
-            return !(eidApiModified && mainLuaModified);
+                "\t\t" + Guard[0],
+                "\t\t" + Guard[1],
+                "\t\t" + Guard[2],
+                "\t\t\t" + Guard[3],
+                "\t\t" + Guard[4],
+            ]);
+            WriteDocument(path, document);
+            return true;
         }
 
-        public static List<string> RemoveOldPatches(List<string> lines) {
-            foreach (var oldPatch in oldPatches) {
-                var candidates = lines.Where(l => l.Contains(oldPatch[0]));
-                foreach (var candidate in candidates) {
-                    int startIndex = lines.IndexOf(candidate);
+        private static bool HasStageGuard(IReadOnlyList<string> lines, int anchorIndex) {
+            int end = Math.Min(lines.Count, anchorIndex + 14);
+            for (int i = anchorIndex + 1; i < end; i++) {
+                if (MatchesBlock(lines, i, Guard))
+                    return true;
 
-                    if (startIndex == -1)
-                        continue;
-
-                    if (startIndex + oldPatch.Length > lines.Count)
-                        continue;
-
-                    bool allMatch = true;
-                    for (int i = 1; i < oldPatch.Length; i++) {
-                        if (!lines[startIndex + i].Contains(oldPatch[i])) {
-                            allMatch = false;
-                            break;
-                        }
-                    }
-                    if (allMatch) {
-                        lines.RemoveRange(startIndex, oldPatch.Length);
-                        break;
-                    }
-                }
+                string line = lines[i].Trim();
+                if (line == "local stage = Game():GetLevel():GetStage()" && MatchesLegacyStageGuard(lines, i))
+                    return true;
+                if (line.Contains("Game():GetLevel():GetStage() >= LevelStage.Home", StringComparison.Ordinal)
+                    && MatchesReturnAndEnd(lines, i + 1))
+                    return true;
             }
-            return lines;
+            return false;
         }
+
+        private static bool MatchesBlock(IReadOnlyList<string> lines, int index, IReadOnlyList<string> block) {
+            if (index + block.Count > lines.Count)
+                return false;
+            for (int i = 0; i < block.Count; i++) {
+                if (lines[index + i].Trim() != block[i])
+                    return false;
+            }
+            return true;
+        }
+
+        private static bool MatchesLegacyStageGuard(IReadOnlyList<string> lines, int index) {
+            if (index + 7 > lines.Count)
+                return false;
+            return lines[index + 1].Trim() == "if stage == nil then"
+                && lines[index + 2].Trim().StartsWith("return listUpdatedForPlayers", StringComparison.Ordinal)
+                && lines[index + 3].Trim() == "end"
+                && lines[index + 4].Contains("stage >= 13", StringComparison.Ordinal)
+                && lines[index + 4].Contains("stage < 1", StringComparison.Ordinal)
+                && MatchesReturnAndEnd(lines, index + 5);
+        }
+
+        private static bool MatchesReturnAndEnd(IReadOnlyList<string> lines, int index) =>
+            index + 1 < lines.Count
+            && lines[index].Trim().StartsWith("return listUpdatedForPlayers", StringComparison.Ordinal)
+            && lines[index + 1].Trim() == "end";
+
+        private static int FindUniqueAnchor(IReadOnlyList<string> lines) {
+            int index = -1;
+            for (int i = 0; i < lines.Count; i++) {
+                if (!lines[i].Contains(Anchor, StringComparison.Ordinal))
+                    continue;
+                if (index >= 0)
+                    return -1;
+                index = i;
+            }
+            return index;
+        }
+
+        private static LuaDocument ReadDocument(string path) {
+            byte[] bytes = File.ReadAllBytes(path);
+            bool hasBom = bytes.Length >= 3 && bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF;
+            string text = new UTF8Encoding(false, true).GetString(bytes, hasBom ? 3 : 0, bytes.Length - (hasBom ? 3 : 0));
+            string newLine = text.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
+            var lines = text.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n').ToList();
+            return new LuaDocument(lines, newLine, hasBom);
+        }
+
+        private static void WriteDocument(string path, LuaDocument document) {
+            string text = string.Join(document.NewLine, document.Lines);
+            string directory = Path.GetDirectoryName(path)
+                ?? throw new InvalidOperationException("The EID file has no parent directory.");
+            string temporaryPath = Path.Combine(directory, $".{Path.GetFileName(path)}.{Guid.NewGuid():N}.tmp");
+            try {
+                File.WriteAllText(temporaryPath, text, new UTF8Encoding(document.HasBom));
+                File.Move(temporaryPath, path, true);
+            } finally {
+                if (File.Exists(temporaryPath))
+                    File.Delete(temporaryPath);
+            }
+        }
+
+        private static string GetApiPath(string eidPath) =>
+            Path.Combine(eidPath, "features", "eid_api.lua");
+
+        private sealed record LuaDocument(List<string> Lines, string NewLine, bool HasBom);
     }
 }
