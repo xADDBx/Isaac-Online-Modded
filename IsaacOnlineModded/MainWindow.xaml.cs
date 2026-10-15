@@ -44,7 +44,14 @@ namespace IsaacModInstaller {
             try {
                 bool modified = GamePatcher.PatchGameExecutable(gamePath);
                 modified |= GamePatcher.PatchGameExecutableAnalytics(gamePath);
-                ShowStatus(modified ? "Game patched successfully." : "Game is already patched.",
+                // The restart desync fix is an independent bug fix; an unsupported game version
+                // must not block the other patches.
+                string note = "";
+                if (GamePatcher.GetStaleInputPatchStatus(gamePath) == PatchStatus.Unsupported)
+                    note = " The restart desync fix does not support this game version.";
+                else
+                    modified |= GamePatcher.PatchGameExecutableStaleInput(gamePath);
+                ShowStatus((modified ? "Game patched successfully." : "Game is already patched.") + note,
                     modified ? Brushes.Green : Brushes.DarkOrange);
             } catch (Exception ex) {
                 ShowError(ex.Message);
@@ -105,6 +112,7 @@ namespace IsaacModInstaller {
             if (!File.Exists(gamePath)) {
                 SetUnavailable(txtCoopPatchStatus);
                 SetUnavailable(txtCoopCharactersPatchStatus);
+                SetUnavailable(txtStaleInputPatchStatus);
                 SetUnavailable(txtEidPatchStatus);
                 btnPatchCoopCharacters.IsEnabled = false;
                 return;
@@ -115,11 +123,13 @@ namespace IsaacModInstaller {
                 PatchStatus charactersStatus = GamePatcher.GetCoopCharactersPatchStatus(gamePath);
                 SetPatchStatus(txtCoopPatchStatus, coopStatus);
                 SetPatchStatus(txtCoopCharactersPatchStatus, charactersStatus);
+                SetPatchStatus(txtStaleInputPatchStatus, GamePatcher.GetStaleInputPatchStatus(gamePath));
                 btnPatchCoopCharacters.IsEnabled = coopStatus == PatchStatus.Patched
                     && charactersStatus != PatchStatus.Unsupported;
             } catch {
                 SetUnavailable(txtCoopPatchStatus);
                 SetUnavailable(txtCoopCharactersPatchStatus);
+                SetUnavailable(txtStaleInputPatchStatus);
                 btnPatchCoopCharacters.IsEnabled = false;
             }
 
