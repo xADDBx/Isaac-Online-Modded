@@ -3,36 +3,12 @@ using System.Linq;
 using System.Text;
 
 namespace IsaacModInstaller {
-    /// <summary>
-    /// Fixes the desync that happens a few seconds into a run that was restarted inside an
-    /// online session.
-    ///
-    /// NetInputDevice::ProcessInputMessage only drops input packets for frames *behind* the
-    /// current frame, and packets carry no run id. When the host restarts, the other player's
-    /// inputs for the last frames of the old run (F+1..F+inputDelay) are still in flight. They
-    /// arrive after the reset, get stored as frames F+1.. of the new run, and the real inputs
-    /// for those frames are later discarded as "Dropping input packet for frame we already
-    /// have". The host then simulates the stale input and the other player the real one.
-    ///
-    /// A legitimate packet is never more than ownDelay + remoteDelay + 1 = 11 frames ahead
-    /// (the game clamps OnlineInputDelay to 1..5), so packets more than FutureFrameWindow
-    /// frames ahead are now dropped through the game's own "outside of match scope" path
-    /// (logged with Received Frame &gt; Current Frame).
-    ///
-    /// The patch replaces 5 bytes of the frame comparison with a jump to 22 bytes of new code
-    /// placed in int3 padding of .text. Neither place holds relocated operands and the new
-    /// code only uses relative jumps, so it works at any load address.
-    /// </summary>
+    // Drops input packets more than FutureFrameWindow frames ahead of the current frame. Without it, packets from
+    // the end of the previous run are applied to a run restarted in an online session, which desyncs it.
     public static class StaleInputPatch {
         public const int FutureFrameWindow = 20;
 
-        // +00 A1 imm32          mov  eax, [g_Manager]
-        // +05 8B 80 imm32       mov  eax, [eax + currentFrame]
-        // +0B 3B F0             cmp  esi, eax                ; esi = packet frame
-        // +0D 73 0C             jae  +1B                     ; frame >= current: accept
-        // +0F 50 56 68 imm32    push eax / push esi / push "...outside of match scope..."
-        // +16 E9 rel32          jmp  LogAndDrop
-        // +1B 56 8D 8B ...      "already have" check, checksum, insert into the input queue
+        // mov eax, [manager]; mov eax, [eax + frame]; cmp esi, eax; jae accept; push eax; push esi; push msg; jmp drop
         private static readonly int[] OriginalSite = Parse(
             "A1 ?? ?? ?? ?? 8B 80 ?? ?? ?? ?? 3B F0 73 0C 50 56 68 ?? ?? ?? ?? E9 ?? ?? ?? ?? 56 8D 8B ?? ?? ?? ?? E8");
         private static readonly int[] PatchedSite = Parse(
@@ -71,18 +47,16 @@ namespace IsaacModInstaller {
             BitConverter.TryWriteBytes(exe.AsSpan(site + JumpAt + 1), cave - (site + JumpAt + 5));
         }
 
-        // Offsets are file offsets; site and cave are in the same section, so their distance
-        // is the same in memory and rel32 jumps can be computed from them directly.
         private static byte[] BuildCave(int cave, int site) {
             byte[] code = {
-                0x3B, 0xF0,                          // cmp  esi, eax
-                0x72, 0x0C,                          // jb   outside             ; frame < current
-                0x8D, 0x50, (byte)FutureFrameWindow, // lea  edx, [eax + window] ; edx is free here
-                0x3B, 0xF2,                          // cmp  esi, edx
-                0x77, 0x05,                          // ja   outside             ; frame > current + window
-                0xE9, 0, 0, 0, 0,                    // jmp  site+1B             ; accept
-                0x50,                                // outside: push eax        ; the overwritten instruction
-                0xE9, 0, 0, 0, 0,                    // jmp  site+10             ; push esi / push fmt / log + drop
+                0x3B, 0xF0,                          // cmp esi, eax
+                0x72, 0x0C,                          // jb  outside
+                0x8D, 0x50, (byte)FutureFrameWindow, // lea edx, [eax + window]
+                0x3B, 0xF2,                          // cmp esi, edx
+                0x77, 0x05,                          // ja  outside
+                0xE9, 0, 0, 0, 0,                    // jmp site + AcceptAt
+                0x50,                                // outside: push eax
+                0xE9, 0, 0, 0, 0,                    // jmp site + OutsideResumeAt
             };
             BitConverter.TryWriteBytes(code.AsSpan(12), site + AcceptAt - (cave + 16));
             BitConverter.TryWriteBytes(code.AsSpan(18), site + OutsideResumeAt - (cave + 22));
@@ -95,7 +69,6 @@ namespace IsaacModInstaller {
                 && exe.AsSpan(cave, CaveSize).SequenceEqual(BuildCave(cave, site));
         }
 
-        // First run of int3 padding long enough for the code, 16-byte aligned in memory.
         private static int FindCave(byte[] exe, Section text) {
             int i = text.RawStart;
             while (i < text.RawEnd) {

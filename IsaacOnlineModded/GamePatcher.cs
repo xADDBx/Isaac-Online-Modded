@@ -9,6 +9,13 @@ using System;
 using System.IO;
 
 namespace IsaacModInstaller {
+    public enum PatchStatus {
+        NotPatched,
+        PartiallyPatched,
+        Patched,
+        Unsupported,
+    }
+
     public static class GamePatcher {
         private static readonly byte[] CoopOriginal = Convert.FromHexString(
             "83E802742A83E801741E83E801741232C08B4DF464890D00000000");
