@@ -1,7 +1,7 @@
 <Window x:Class="IsaacModInstaller.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Isaac Online Modded" Height="260" Width="1010" MinWidth="600" MinHeight="260">
+        Title="Isaac Online Modded" Height="260" Width="842" MinWidth="600" MinHeight="260">
     <Grid Margin="12">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>

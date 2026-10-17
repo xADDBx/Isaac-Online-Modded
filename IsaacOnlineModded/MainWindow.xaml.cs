@@ -44,8 +44,6 @@ namespace IsaacModInstaller {
             try {
                 bool modified = GamePatcher.PatchGameExecutable(gamePath);
                 modified |= GamePatcher.PatchGameExecutableAnalytics(gamePath);
-                // The restart desync fix is an independent bug fix; an unsupported game version
-                // must not block the other patches.
                 string note = "";
                 if (GamePatcher.GetStaleInputPatchStatus(gamePath) == PatchStatus.Unsupported)
                     note = " The restart desync fix does not support this game version.";
