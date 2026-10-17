@@ -14,14 +14,6 @@ While this patch allows starting online co-op with any mod installed, doing so c
 
 *For further information, see the specific subdirectories (e.g., for External Item Descriptions).*
 
-## Restart desync fix
-
-When the host restarts a run during an online session (holding R, or starting a new run after a game over), the other players' inputs for the last few frames of the old run can still be on their way. The game identifies input packets only by frame number, so those stale inputs get stored under the same frame numbers of the new run, and the real inputs for those frames are thrown away when they arrive (`Dropping input packet for frame we already have` in `log.txt`). The host then simulates different inputs than everyone else, and the run desyncs once it reaches the frame number where the previous run ended — usually a few seconds to a few minutes in.
-
-The fix makes the game drop input packets that are more than 20 frames ahead of the current frame. Legitimate packets are never more than 11 frames ahead (the online input delay is at most 5 frames per player), so nothing else changes. Dropped stale packets appear in `log.txt` as `Dropping input packet outside of match scope. Received Frame: 347, Current Frame: 0` (the received frame is higher than the current one).
-
-The tool shows it as **Restart Desync Fix** in the status bar. It was made for Repentance+ v1.9.7.17 (J460); "Unsupported" means a game update changed the code, and the other patches still apply. The tests are in [`Tests/`](Tests/README.md).
-
 ## Troubleshooting
 
 The game writes what you need to diagnose a desync to `Documents\My Games\Binding of Isaac Repentance+\`:
