@@ -36,9 +36,6 @@ namespace IsaacModInstaller {
         }
 
         public static void Apply(byte[] exe) {
-            if (GetStatus(exe) != PatchStatus.NotPatched)
-                throw new InvalidOperationException("The restart desync fix cannot be applied to this executable.");
-
             Section text = TextSection(exe);
             int site = FindUnique(exe, text, OriginalSite, out _);
             int cave = FindCave(exe, text);
