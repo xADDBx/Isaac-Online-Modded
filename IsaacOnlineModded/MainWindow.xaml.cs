@@ -53,6 +53,24 @@ namespace IsaacModInstaller {
             }
         }
 
+        private void RestartDesyncButton_Click(object sender, RoutedEventArgs e) {
+            string gamePath = txtGamePath.Text;
+            if (!File.Exists(gamePath)) {
+                ShowError("Invalid game path. Please select the correct executable.");
+                return;
+            }
+
+            try {
+                bool modified = GamePatcher.PatchGameExecutableStaleInput(gamePath);
+                ShowStatus(modified ? "Restart desync fix applied successfully." : "Restart desync fix is already applied.",
+                    modified ? Brushes.Green : Brushes.DarkOrange);
+            } catch (Exception ex) {
+                ShowError(ex.Message);
+            } finally {
+                UpdateDiagnostics();
+            }
+        }
+
         private void CoopCharactersButton_Click(object sender, RoutedEventArgs e) {
             string gamePath = txtGamePath.Text;
             if (!File.Exists(gamePath)) {
@@ -105,22 +123,29 @@ namespace IsaacModInstaller {
             if (!File.Exists(gamePath)) {
                 SetUnavailable(txtCoopPatchStatus);
                 SetUnavailable(txtCoopCharactersPatchStatus);
+                SetUnavailable(txtStaleInputPatchStatus);
                 SetUnavailable(txtEidPatchStatus);
                 btnPatchCoopCharacters.IsEnabled = false;
+                btnPatchRestartDesync.IsEnabled = false;
                 return;
             }
 
             try {
                 PatchStatus coopStatus = GamePatcher.GetCoopPatchStatus(gamePath);
                 PatchStatus charactersStatus = GamePatcher.GetCoopCharactersPatchStatus(gamePath);
+                PatchStatus staleInputStatus = GamePatcher.GetStaleInputPatchStatus(gamePath);
                 SetPatchStatus(txtCoopPatchStatus, coopStatus);
                 SetPatchStatus(txtCoopCharactersPatchStatus, charactersStatus);
+                SetPatchStatus(txtStaleInputPatchStatus, staleInputStatus);
                 btnPatchCoopCharacters.IsEnabled = coopStatus == PatchStatus.Patched
                     && charactersStatus != PatchStatus.Unsupported;
+                btnPatchRestartDesync.IsEnabled = staleInputStatus != PatchStatus.Unsupported;
             } catch {
                 SetUnavailable(txtCoopPatchStatus);
                 SetUnavailable(txtCoopCharactersPatchStatus);
+                SetUnavailable(txtStaleInputPatchStatus);
                 btnPatchCoopCharacters.IsEnabled = false;
+                btnPatchRestartDesync.IsEnabled = false;
             }
 
             string? eidPath = FindEidPath(gamePath);

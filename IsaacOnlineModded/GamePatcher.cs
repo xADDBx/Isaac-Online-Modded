@@ -74,6 +74,25 @@ namespace IsaacModInstaller {
         public static bool PatchGameExecutableAnalytics(string gamePath) =>
             PatchFile(gamePath, AnalyticsOriginal, AnalyticsPatched);
 
+        public static PatchStatus GetStaleInputPatchStatus(string gamePath) =>
+            StaleInputPatch.GetStatus(File.ReadAllBytes(gamePath));
+
+        public static bool PatchGameExecutableStaleInput(string gamePath) {
+            byte[] exeBytes = File.ReadAllBytes(gamePath);
+            PatchStatus status = StaleInputPatch.GetStatus(exeBytes);
+            if (status == PatchStatus.Patched)
+                return false;
+            if (status != PatchStatus.NotPatched)
+                throw new InvalidOperationException("The restart desync fix does not support this game version.");
+
+            StaleInputPatch.Apply(exeBytes);
+            if (StaleInputPatch.GetStatus(exeBytes) != PatchStatus.Patched)
+                throw new InvalidOperationException("The restart desync fix could not be verified.");
+
+            WritePatchedFile(gamePath, exeBytes);
+            return true;
+        }
+
         public static bool PatchGameExecutableCoopCharacters(string gamePath) {
             byte[] exeBytes = File.ReadAllBytes(gamePath);
             if (GetPatchStatus(exeBytes, CoopOriginal, CoopPatched) != PatchStatus.Patched)
