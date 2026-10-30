@@ -22,23 +22,25 @@
                 Click="BrowseButton_Click"/>
 
         <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,0,0,10">
-            <Button Content="Patch Game" Width="110" Click="PatchButton_Click"/>
-            <Button Name="btnPatchCoopCharacters" Content="Patch Coop Characters (Optional)" Width="220"
-                    Margin="10,0,0,0" Click="CoopCharactersButton_Click"
-                    ToolTip="Requires the Coop patch."/>
-            <Button Name="btnPatchRestartDesync" Content="Patch Restart Desync (Optional)" Width="210"
-                    Margin="10,0,0,0" Click="RestartDesyncButton_Click"
-                    ToolTip="Prevents the desync after restarting a run online. Independent of the other patches."/>
+            <Button Content="Patch Game" Width="110" FontWeight="SemiBold" Click="PatchButton_Click"
+                    ToolTip="Required. Allows online co-op with mods enabled."/>
+            <TextBlock Text="Optional:" VerticalAlignment="Center" Foreground="Gray" Margin="20,0,0,0"/>
             <Button Content="Patch External Item Descriptions" Width="220" Margin="10,0,0,0"
                     Click="EIDButton_Click"/>
+            <Button Name="btnPatchCoopCharacters" Content="Patch Coop Characters" Width="160"
+                    Margin="10,0,0,0" Click="CoopCharactersButton_Click"
+                    ToolTip="Requires the Coop patch."/>
+            <Button Name="btnPatchRestartDesync" Content="Patch Restart Desync" Width="150"
+                    Margin="10,0,0,0" Click="RestartDesyncButton_Click"
+                    ToolTip="Prevents the desync after restarting a run online. Independent of the other patches."/>
         </StackPanel>
 
         <Border Grid.Row="3" Grid.ColumnSpan="2" BorderBrush="#D0D0D0" BorderThickness="1" Padding="8">
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="EID Patched: "/>
-                <TextBlock Name="txtEidPatchStatus" FontWeight="SemiBold" Margin="0,0,24,0"/>
                 <TextBlock Text="Coop Patched: "/>
                 <TextBlock Name="txtCoopPatchStatus" FontWeight="SemiBold" Margin="0,0,24,0"/>
+                <TextBlock Text="EID Patched: "/>
+                <TextBlock Name="txtEidPatchStatus" FontWeight="SemiBold" Margin="0,0,24,0"/>
                 <TextBlock Text="Coop Characters Patched: "/>
                 <TextBlock Name="txtCoopCharactersPatchStatus" FontWeight="SemiBold" Margin="0,0,24,0"/>
                 <TextBlock Text="Restart Desync Fix: "/>
