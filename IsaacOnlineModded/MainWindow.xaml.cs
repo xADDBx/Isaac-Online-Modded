@@ -103,7 +103,10 @@ namespace IsaacModInstaller {
             }
 
             try {
+                if (GamePatcher.GetMapInputPatchStatus(gamePath) == PatchStatus.Unsupported)
+                    throw new InvalidOperationException("The online map button fix does not support this game version.");
                 bool modified = EIDPatcher.Patch(eidPath);
+                modified |= GamePatcher.PatchGameExecutableMapInput(gamePath);
                 ShowStatus(modified ? "EID patched successfully." : "EID is already patched.",
                     modified ? Brushes.Green : Brushes.DarkOrange);
             } catch (Exception ex) {
@@ -153,11 +156,23 @@ namespace IsaacModInstaller {
                 SetUnavailable(txtEidPatchStatus, "Not installed");
             else {
                 try {
-                    SetPatchStatus(txtEidPatchStatus, EIDPatcher.GetPatchStatus(eidPath));
+                    SetPatchStatus(txtEidPatchStatus, GetEidPatchStatus(gamePath, eidPath));
                 } catch {
                     SetUnavailable(txtEidPatchStatus);
                 }
             }
+        }
+
+        // The EID fix covers the Lua patch and the game's online map button; an older install with only the Lua part
+        // counts as not patched so the button applies the rest.
+        private static PatchStatus GetEidPatchStatus(string gamePath, string eidPath) {
+            PatchStatus luaStatus = EIDPatcher.GetPatchStatus(eidPath);
+            PatchStatus mapStatus = GamePatcher.GetMapInputPatchStatus(gamePath);
+            if (luaStatus == PatchStatus.Unsupported || mapStatus == PatchStatus.Unsupported)
+                return PatchStatus.Unsupported;
+            return luaStatus == PatchStatus.Patched && mapStatus == PatchStatus.Patched
+                ? PatchStatus.Patched
+                : PatchStatus.NotPatched;
         }
 
         private static string? FindEidPath(string gamePath) {
