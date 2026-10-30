@@ -47,6 +47,17 @@ namespace IsaacModInstaller {
         private static readonly byte[] CoopCharactersAvailabilityRelocationPatched = Convert.FromHexString(
             "073B1E3B323B863B9C3BB43BCD3B");
 
+        // Online inputs are sent as a 16 bit button mask; the action -> bit switch drops ACTION_MAP, so Lua mods (EID)
+        // never see it pressed online. Turn the switch into a plain table lookup and send ACTION_MAP as the unused bit 15.
+        private static readonly byte[] MapInputSwitchOriginal = Convert.FromHexString(
+            "83F92277650FB68100109000FF2485C00F9000");
+        private static readonly byte[] MapInputSwitchPatched = Convert.FromHexString(
+            "83F92277650FB68100109000C32485C00F9000");
+        private static readonly byte[] MapInputTableOriginal = Convert.FromHexString(
+            "000102030405060708090A0B0F0F0C0F0F0F0D0F0F0F0F0F0F0F0F0F0F0F0F0F0F0F0E");
+        private static readonly byte[] MapInputTablePatched = Convert.FromHexString(
+            "000102030405060708090A0BFF0F0CFFFFFF0DFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0E");
+
         public static string DetectGamePath() {
             string steamPath = GetSteamGamePath();
             if (!string.IsNullOrEmpty(steamPath))
@@ -91,6 +102,32 @@ namespace IsaacModInstaller {
 
             WritePatchedFile(gamePath, exeBytes);
             return true;
+        }
+
+        public static PatchStatus GetMapInputPatchStatus(string gamePath) =>
+            GetMapInputPatchStatus(File.ReadAllBytes(gamePath));
+
+        public static bool PatchGameExecutableMapInput(string gamePath) {
+            byte[] exeBytes = File.ReadAllBytes(gamePath);
+            PatchStatus status = GetMapInputPatchStatus(exeBytes);
+            if (status == PatchStatus.Patched)
+                return false;
+            if (status != PatchStatus.NotPatched)
+                throw new InvalidOperationException("The online map button fix does not support this game version.");
+
+            ApplyPatch(exeBytes, MapInputSwitchOriginal, MapInputSwitchPatched);
+            ApplyPatch(exeBytes, MapInputTableOriginal, MapInputTablePatched);
+            if (GetMapInputPatchStatus(exeBytes) != PatchStatus.Patched)
+                throw new InvalidOperationException("The online map button fix could not be verified.");
+
+            WritePatchedFile(gamePath, exeBytes);
+            return true;
+        }
+
+        private static PatchStatus GetMapInputPatchStatus(byte[] exeBytes) {
+            PatchStatus switchStatus = GetPatchStatus(exeBytes, MapInputSwitchOriginal, MapInputSwitchPatched);
+            PatchStatus tableStatus = GetPatchStatus(exeBytes, MapInputTableOriginal, MapInputTablePatched);
+            return switchStatus == tableStatus ? switchStatus : PatchStatus.Unsupported;
         }
 
         public static bool PatchGameExecutableCoopCharacters(string gamePath) {
