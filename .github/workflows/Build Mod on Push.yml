@@ -11,28 +11,28 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: '8.x'
+          dotnet-version: '10.x'
 
       - name: Restore dependencies
         run: dotnet restore ./IsaacOnlineModded/IsaacOnlineModded.csproj
 
-      - name: Publish project
-        run: dotnet publish ./IsaacOnlineModded/IsaacOnlineModded.csproj /p:PublishProfile=FolderProfile
-        
-      - name: Publish project self-contained
-        run: dotnet publish ./IsaacOnlineModded/IsaacOnlineModded.csproj /p:PublishProfile=FolderProfile2
-          
-      - name: Compress Self-Contained Binaries
+      - name: Publish Windows
+        run: dotnet publish ./IsaacOnlineModded/IsaacOnlineModded.csproj /p:PublishProfile=Windows
+
+      - name: Publish Linux
         run: |
-          powershell Compress-Archive -Path ./IsaacOnlineModded/BinariesSelfContained/* -DestinationPath ./BinariesWithRuntime.zip
+          dotnet publish ./IsaacOnlineModded/IsaacOnlineModded.csproj /p:PublishProfile=Linux
+          Copy-Item ./IsaacOnlineModded/Binaries/Linux/IsaacOnlineModded ./IsaacOnlineModded-Linux
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: IsaacOnlineModded
-          path: ./IsaacOnlineModded/Binaries/IsaacOnlineModded.exe
+          path: |
+            ./IsaacOnlineModded/Binaries/Windows/IsaacOnlineModded.exe
+            ./IsaacOnlineModded-Linux
