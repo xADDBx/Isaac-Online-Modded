@@ -9,7 +9,8 @@ end
 local RECOMMENDED_SHIFT_IDX = 35
 -- RNG object for good rng that doesn't need to be seeded
 local randomRNG = RNG()
-randomRNG:SetSeed((Game():GetFrameCount() // 2) + 1, RECOMMENDED_SHIFT_IDX)
+-- IsaacOnlineModded: Random() advances the synced RNG
+randomRNG:SetSeed((Isaac.GetTime() // 2) + 1, RECOMMENDED_SHIFT_IDX)
 
 local SaveState = {}
 
@@ -80,10 +81,7 @@ local function updateRandomAltMusic()
     local seeds = game:GetSeeds()
     rng:SetSeed(seeds:GetStageSeed(game:GetLevel():GetStage()), RECOMMENDED_SHIFT_IDX)
   else
-    local seed = Random()
-    if seed < 1 or seed > 4294967295 then
-      seed = 256
-    end
+    -- IsaacOnlineModded: Random() advances the synced RNG
     rng:SetSeed(randomRNG:RandomInt(4294967295) + 1, RECOMMENDED_SHIFT_IDX)
   end
   RandomAltMusic = {
