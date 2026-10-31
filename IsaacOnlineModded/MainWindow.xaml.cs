@@ -116,6 +116,30 @@ namespace IsaacModInstaller {
             }
         }
 
+        private void AntibirthMusicButton_Click(object sender, RoutedEventArgs e) {
+            string gamePath = txtGamePath.Text;
+            if (!File.Exists(gamePath)) {
+                ShowError("Invalid game path. Please select the correct executable.");
+                return;
+            }
+
+            string? musicPath = FindAntibirthMusicPath(gamePath);
+            if (musicPath == null) {
+                ShowError("Antibirth Music+++ was not found in the game's mods directory.");
+                return;
+            }
+
+            try {
+                bool modified = AntibirthMusicPatcher.Patch(musicPath);
+                ShowStatus(modified ? "Antibirth Music+++ patched successfully." : "Antibirth Music+++ is already patched.",
+                    modified ? Brushes.Green : Brushes.DarkOrange);
+            } catch (Exception ex) {
+                ShowError(ex.Message);
+            } finally {
+                UpdateDiagnostics();
+            }
+        }
+
         private void GamePath_TextChanged(object sender, TextChangedEventArgs e) {
             if (IsInitialized)
                 UpdateDiagnostics();
@@ -128,6 +152,7 @@ namespace IsaacModInstaller {
                 SetUnavailable(txtCoopCharactersPatchStatus);
                 SetUnavailable(txtStaleInputPatchStatus);
                 SetUnavailable(txtEidPatchStatus);
+                SetUnavailable(txtAntibirthMusicPatchStatus);
                 btnPatchCoopCharacters.IsEnabled = false;
                 btnPatchRestartDesync.IsEnabled = false;
                 return;
@@ -161,6 +186,17 @@ namespace IsaacModInstaller {
                     SetUnavailable(txtEidPatchStatus);
                 }
             }
+
+            string? musicPath = FindAntibirthMusicPath(gamePath);
+            if (musicPath == null)
+                SetUnavailable(txtAntibirthMusicPatchStatus, "Not installed");
+            else {
+                try {
+                    SetPatchStatus(txtAntibirthMusicPatchStatus, AntibirthMusicPatcher.GetPatchStatus(musicPath));
+                } catch {
+                    SetUnavailable(txtAntibirthMusicPatchStatus);
+                }
+            }
         }
 
         // The EID fix covers the Lua patch and the game's online map button; an older install with only the Lua part
@@ -175,7 +211,20 @@ namespace IsaacModInstaller {
                 : PatchStatus.NotPatched;
         }
 
-        private static string? FindEidPath(string gamePath) {
+        private static string? FindEidPath(string gamePath) =>
+            FindModPath(gamePath, path => {
+                string name = Path.GetFileName(path);
+                return name.Contains("external", StringComparison.OrdinalIgnoreCase)
+                    && name.Contains("item", StringComparison.OrdinalIgnoreCase)
+                    && name.Contains("descriptions", StringComparison.OrdinalIgnoreCase)
+                    && File.Exists(Path.Combine(path, "features", "eid_api.lua"));
+            });
+
+        private static string? FindAntibirthMusicPath(string gamePath) =>
+            FindModPath(gamePath, path => Path.GetFileName(path).Contains("antibirth", StringComparison.OrdinalIgnoreCase)
+                && AntibirthMusicPatcher.IsAntibirthMusic(path));
+
+        private static string? FindModPath(string gamePath, Func<string, bool> match) {
             string? gameDirectory = Path.GetDirectoryName(gamePath);
             if (gameDirectory == null)
                 return null;
@@ -184,14 +233,7 @@ namespace IsaacModInstaller {
             if (!Directory.Exists(modsPath))
                 return null;
 
-            return Directory.EnumerateDirectories(modsPath)
-                .FirstOrDefault(path => {
-                    string name = Path.GetFileName(path);
-                    return name.Contains("external", StringComparison.OrdinalIgnoreCase)
-                        && name.Contains("item", StringComparison.OrdinalIgnoreCase)
-                        && name.Contains("descriptions", StringComparison.OrdinalIgnoreCase)
-                        && File.Exists(Path.Combine(path, "features", "eid_api.lua"));
-                });
+            return Directory.EnumerateDirectories(modsPath).FirstOrDefault(match);
         }
 
         private static void SetPatchStatus(TextBlock target, PatchStatus status) {

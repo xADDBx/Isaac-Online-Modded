@@ -1,7 +1,7 @@
 <Window x:Class="IsaacModInstaller.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Isaac Online Modded" Height="260" Width="842" MinWidth="600" MinHeight="260">
+        Title="Isaac Online Modded" Height="260" Width="1010" MinWidth="600" MinHeight="260">
     <Grid Margin="12">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -21,7 +21,7 @@
         <Button Grid.Row="1" Grid.Column="1" Content="Browse" Width="80" Margin="0,5,0,8"
                 Click="BrowseButton_Click"/>
 
-        <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,0,0,10">
+        <WrapPanel Grid.Row="2" Grid.ColumnSpan="2" Margin="0,0,0,10">
             <Button Content="Patch Game" Width="110" FontWeight="SemiBold" Click="PatchButton_Click"
                     ToolTip="Required. Allows online co-op with mods enabled."/>
             <TextBlock Text="Optional:" VerticalAlignment="Center" Foreground="Gray" Margin="20,0,0,0"/>
@@ -33,10 +33,13 @@
             <Button Name="btnPatchRestartDesync" Content="Patch Restart Desync" Width="150"
                     Margin="10,0,0,0" Click="RestartDesyncButton_Click"
                     ToolTip="Prevents the desync after restarting a run online. Independent of the other patches."/>
-        </StackPanel>
+            <Button Content="Patch Antibirth Music+++" Width="170" Margin="10,0,0,0"
+                    Click="AntibirthMusicButton_Click"
+                    ToolTip="Lets players without Antibirth Music+++ play with players who have it."/>
+        </WrapPanel>
 
         <Border Grid.Row="3" Grid.ColumnSpan="2" BorderBrush="#D0D0D0" BorderThickness="1" Padding="8">
-            <StackPanel Orientation="Horizontal">
+            <WrapPanel>
                 <TextBlock Text="Coop Patched: "/>
                 <TextBlock Name="txtCoopPatchStatus" FontWeight="SemiBold" Margin="0,0,24,0"/>
                 <TextBlock Text="EID Patched: "/>
@@ -44,8 +47,10 @@
                 <TextBlock Text="Coop Characters Patched: "/>
                 <TextBlock Name="txtCoopCharactersPatchStatus" FontWeight="SemiBold" Margin="0,0,24,0"/>
                 <TextBlock Text="Restart Desync Fix: "/>
-                <TextBlock Name="txtStaleInputPatchStatus" FontWeight="SemiBold"/>
-            </StackPanel>
+                <TextBlock Name="txtStaleInputPatchStatus" FontWeight="SemiBold" Margin="0,0,24,0"/>
+                <TextBlock Text="Antibirth Music+++ Patched: "/>
+                <TextBlock Name="txtAntibirthMusicPatchStatus" FontWeight="SemiBold"/>
+            </WrapPanel>
         </Border>
 
         <TextBlock Name="txtStatus" Grid.Row="4" Grid.ColumnSpan="2" Margin="0,10,0,0" TextWrapping="Wrap"/>
