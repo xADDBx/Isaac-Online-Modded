@@ -4,9 +4,15 @@ This tool allows you to patch the game binary of **The Binding of Isaac** to ena
 
 This tool also allows you to modify the External Item Descriptions and Antibirth Music+++ mods in a way to enable using them in coop.
 
-**Patch Restart Desync** fixes a bug in the game's online netcode that desyncs runs restarted inside an online session. It doesn't need the other patches and helps unmodded games too; apply it on every PC, at least on the host's.
+The **Restart desync fix** fixes a bug in the game's online netcode that desyncs runs restarted inside an online session. It doesn't need the other patches and helps unmodded games too; apply it on every PC, at least on the host's.
 
 **Note:** You will need to run the patch again each time the game updates.
+
+## Download
+
+Get the latest release: `IsaacOnlineModded.exe` for Windows, `IsaacOnlineModded-Linux` for Linux (including the Steam Deck in desktop mode). Neither needs .NET installed.
+
+On Linux, make the file executable first (`chmod +x IsaacOnlineModded-Linux`, or the file's properties in your file manager). The tool finds the game in Steam (native, Flatpak or Snap) and in Wine or Bottles prefixes; otherwise select `isaac-ng.exe` with **Browse**.
 
 ## Warning
 

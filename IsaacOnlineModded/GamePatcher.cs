@@ -1,10 +1,3 @@
-using GameFinder.RegistryUtils;
-using GameFinder.StoreHandlers.EGS;
-using GameFinder.StoreHandlers.GOG;
-using GameFinder.StoreHandlers.Steam;
-using GameFinder.StoreHandlers.Steam.Models.ValueTypes;
-using GameFinder.StoreHandlers.Steam.Services;
-using NexusMods.Paths;
 using System;
 using System.IO;
 
@@ -58,19 +51,6 @@ namespace IsaacModInstaller {
         private static readonly byte[] MapInputTablePatched = Convert.FromHexString(
             "000102030405060708090A0BFF0F0CFFFFFF0DFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0E");
 
-        public static string DetectGamePath() {
-            string steamPath = GetSteamGamePath();
-            if (!string.IsNullOrEmpty(steamPath))
-                return steamPath;
-
-            string gogPath = GetGOGGamePath();
-            if (!string.IsNullOrEmpty(gogPath))
-                return gogPath;
-
-            string epicPath = GetEpicGamePath();
-            return string.IsNullOrEmpty(epicPath) ? string.Empty : epicPath;
-        }
-
         public static PatchStatus GetCoopPatchStatus(string gamePath) =>
             GetPatchStatus(File.ReadAllBytes(gamePath), CoopOriginal, CoopPatched);
 
@@ -81,6 +61,9 @@ namespace IsaacModInstaller {
 
         public static bool PatchGameExecutable(string gamePath) =>
             PatchFile(gamePath, CoopOriginal, CoopPatched);
+
+        public static PatchStatus GetAnalyticsPatchStatus(string gamePath) =>
+            GetPatchStatus(File.ReadAllBytes(gamePath), AnalyticsOriginal, AnalyticsPatched);
 
         public static bool PatchGameExecutableAnalytics(string gamePath) =>
             PatchFile(gamePath, AnalyticsOriginal, AnalyticsPatched);
@@ -245,24 +228,6 @@ namespace IsaacModInstaller {
                 availabilityRelocation == PatchStatus.NotPatched)
                 return PatchStatus.NotPatched;
             return PatchStatus.Unsupported;
-        }
-
-        private static string GetSteamGamePath() {
-            var handler = new SteamHandler(FileSystem.Shared, OperatingSystem.IsWindows() ? WindowsRegistry.Shared : null);
-            var maybeGame = handler.FindOneGameById(AppId.From(250900), out _);
-            return maybeGame is SteamGame game ? Path.Combine(game.Path.GetFullPath(), "isaac-ng.exe") : string.Empty;
-        }
-
-        private static string GetGOGGamePath() {
-            var handler = new GOGHandler(WindowsRegistry.Shared, FileSystem.Shared);
-            var maybeGame = handler.FindOneGameById(GOGGameId.From(1205572215), out _);
-            return maybeGame is GOGGame game ? Path.Combine(game.Path.GetFullPath(), "isaac-ng.exe") : string.Empty;
-        }
-
-        private static string GetEpicGamePath() {
-            var handler = new EGSHandler(WindowsRegistry.Shared, FileSystem.Shared);
-            var maybeGame = handler.FindOneGameById(EGSGameId.From("dbf5337d024e457bac68f2059112da86"), out _);
-            return maybeGame is EGSGame game ? Path.Combine(game.InstallLocation.GetFullPath(), "isaac-ng.exe") : string.Empty;
         }
     }
 }

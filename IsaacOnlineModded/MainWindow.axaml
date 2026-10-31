@@ -1,0 +1,165 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="IsaacModInstaller.MainWindow"
+        Title="Isaac Online Modded" Icon="/Icon.ico"
+        Width="660" MinWidth="500" SizeToContent="Height">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="CardBrush" Color="#F5F5F7"/>
+                    <SolidColorBrush x:Key="CardBorderBrush" Color="#E2E2E7"/>
+                    <SolidColorBrush x:Key="GoodBrush" Color="#1A7F37"/>
+                    <SolidColorBrush x:Key="GoodBackBrush" Color="#DCF5E3"/>
+                    <SolidColorBrush x:Key="WarnBrush" Color="#9A6200"/>
+                    <SolidColorBrush x:Key="WarnBackBrush" Color="#FCEFD2"/>
+                    <SolidColorBrush x:Key="BadBrush" Color="#C62A33"/>
+                    <SolidColorBrush x:Key="MutedBackBrush" Color="#E8E8EC"/>
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="CardBrush" Color="#1E1E22"/>
+                    <SolidColorBrush x:Key="CardBorderBrush" Color="#2F2F35"/>
+                    <SolidColorBrush x:Key="GoodBrush" Color="#56C271"/>
+                    <SolidColorBrush x:Key="GoodBackBrush" Color="#1B3324"/>
+                    <SolidColorBrush x:Key="WarnBrush" Color="#E5A845"/>
+                    <SolidColorBrush x:Key="WarnBackBrush" Color="#3A2D14"/>
+                    <SolidColorBrush x:Key="BadBrush" Color="#F2706A"/>
+                    <SolidColorBrush x:Key="MutedBackBrush" Color="#2C2C31"/>
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Window.Styles>
+        <Style Selector="TextBlock.section">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="2,0,0,6"/>
+        </Style>
+        <Style Selector="TextBlock.hint">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Opacity" Value="0.7"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+        <Style Selector="TextBlock.good">
+            <Setter Property="Foreground" Value="{DynamicResource GoodBrush}"/>
+        </Style>
+        <Style Selector="TextBlock.warn">
+            <Setter Property="Foreground" Value="{DynamicResource WarnBrush}"/>
+        </Style>
+        <Style Selector="TextBlock.bad">
+            <Setter Property="Foreground" Value="{DynamicResource BadBrush}"/>
+        </Style>
+
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="{DynamicResource CardBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="16,12"/>
+        </Style>
+        <Style Selector="Border.card > Grid">
+            <Setter Property="ColumnSpacing" Value="12"/>
+            <Setter Property="RowSpacing" Value="14"/>
+        </Style>
+        <Style Selector="Border.card Button">
+            <Setter Property="Content" Value="Patch"/>
+            <Setter Property="MinWidth" Value="80"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style Selector="Border.pill">
+            <Setter Property="Background" Value="{DynamicResource MutedBackBrush}"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="8,2"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+        </Style>
+        <Style Selector="Border.pill > TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        <Style Selector="Border.pill.good">
+            <Setter Property="Background" Value="{DynamicResource GoodBackBrush}"/>
+        </Style>
+        <Style Selector="Border.pill.good > TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource GoodBrush}"/>
+        </Style>
+        <Style Selector="Border.pill.warn">
+            <Setter Property="Background" Value="{DynamicResource WarnBackBrush}"/>
+        </Style>
+        <Style Selector="Border.pill.warn > TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource WarnBrush}"/>
+        </Style>
+        <Style Selector="Border.pill.muted > TextBlock">
+            <Setter Property="Opacity" Value="0.7"/>
+        </Style>
+    </Window.Styles>
+
+    <StackPanel Margin="20" Spacing="18">
+        <StackPanel Spacing="6">
+            <TextBlock Classes="section" Text="Game path" Margin="2,0,0,0"/>
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <TextBox Name="txtGamePath" TextChanged="GamePath_TextChanged"/>
+                <Button Grid.Column="1" Content="Browse" Click="Browse_Click"/>
+            </Grid>
+            <TextBlock Name="txtMessage" Margin="2,0,0,0" TextWrapping="Wrap" IsVisible="False"/>
+        </StackPanel>
+
+        <StackPanel>
+            <TextBlock Classes="section" Text="Required"/>
+            <Border Classes="card">
+                <Grid ColumnDefinitions="*,130,Auto">
+                    <StackPanel>
+                        <TextBlock Text="Coop mods"/>
+                        <TextBlock Classes="hint" Text="Lets you play online co-op with mods enabled."/>
+                    </StackPanel>
+                    <Border Name="statusCoop" Classes="pill" Grid.Column="1"><TextBlock/></Border>
+                    <Button Name="btnCoop" Classes="accent" Grid.Column="2" Click="Coop_Click"/>
+                </Grid>
+            </Border>
+        </StackPanel>
+
+        <StackPanel>
+            <TextBlock Classes="section" Text="Optional"/>
+            <Border Classes="card">
+                <Grid ColumnDefinitions="*,130,Auto" RowDefinitions="Auto,Auto">
+                    <StackPanel>
+                        <TextBlock Text="Restart desync fix"/>
+                        <TextBlock Classes="hint" Text="Prevents the desync after restarting a run online. Works without mods too; best on every PC, at least on the host's."/>
+                    </StackPanel>
+                    <Border Name="statusRestartDesync" Classes="pill" Grid.Column="1"><TextBlock/></Border>
+                    <Button Name="btnRestartDesync" Grid.Column="2" Click="RestartDesync_Click"/>
+
+                    <StackPanel Grid.Row="1">
+                        <TextBlock Text="Coop characters"/>
+                        <TextBlock Classes="hint" Text="Experimental. All players will need the character mods at minimum."/>
+                    </StackPanel>
+                    <Border Name="statusCoopCharacters" Classes="pill" Grid.Row="1" Grid.Column="1"><TextBlock/></Border>
+                    <Button Name="btnCoopCharacters" Grid.Row="1" Grid.Column="2" Click="CoopCharacters_Click"/>
+                </Grid>
+            </Border>
+        </StackPanel>
+
+        <StackPanel>
+            <TextBlock Classes="section" Text="Mod fixes"/>
+            <Border Classes="card">
+                <Grid ColumnDefinitions="*,130,Auto" RowDefinitions="Auto,Auto">
+                    <StackPanel>
+                        <TextBlock Text="External Item Descriptions"/>
+                        <TextBlock Classes="hint" Text="Prevents a crash after The Beast and makes the map button work online."/>
+                    </StackPanel>
+                    <Border Name="statusEid" Classes="pill" Grid.Column="1"><TextBlock/></Border>
+                    <Button Name="btnEid" Grid.Column="2" Click="Eid_Click"/>
+
+                    <StackPanel Grid.Row="1">
+                        <TextBlock Text="Antibirth Music+++"/>
+                        <TextBlock Classes="hint" Text="Lets players without the mod play with players who have it."/>
+                    </StackPanel>
+                    <Border Name="statusAntibirthMusic" Classes="pill" Grid.Row="1" Grid.Column="1"><TextBlock/></Border>
+                    <Button Name="btnAntibirthMusic" Grid.Row="1" Grid.Column="2" Click="AntibirthMusic_Click"/>
+                </Grid>
+            </Border>
+        </StackPanel>
+    </StackPanel>
+</Window>
