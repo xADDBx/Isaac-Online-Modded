@@ -30,9 +30,6 @@ namespace IsaacModInstaller {
         private void Coop_Click(object? sender, RoutedEventArgs e) =>
             Patch("Coop mods", path => GamePatcher.PatchGameExecutable(path) | GamePatcher.PatchGameExecutableAnalytics(path));
 
-        private void RestartDesync_Click(object? sender, RoutedEventArgs e) =>
-            Patch("Restart desync fix", GamePatcher.PatchGameExecutableStaleInput);
-
         private void CoopCharacters_Click(object? sender, RoutedEventArgs e) =>
             Patch("Coop characters", GamePatcher.PatchGameExecutableCoopCharacters);
 
@@ -72,7 +69,6 @@ namespace IsaacModInstaller {
             PatchStatus? coop = GetStatus(gamePath, path =>
                 Combine(GamePatcher.GetCoopPatchStatus(path), GamePatcher.GetAnalyticsPatchStatus(path)));
             ShowStatus(statusCoop, btnCoop, coop);
-            ShowStatus(statusRestartDesync, btnRestartDesync, GetStatus(gamePath, GamePatcher.GetStaleInputPatchStatus));
             ShowStatus(statusCoopCharacters, btnCoopCharacters,
                 GetStatus(gamePath, GamePatcher.GetCoopCharactersPatchStatus), coop == PatchStatus.Patched);
 
