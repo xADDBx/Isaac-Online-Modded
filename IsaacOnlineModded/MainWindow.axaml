@@ -123,20 +123,13 @@
         <StackPanel>
             <TextBlock Classes="section" Text="Optional"/>
             <Border Classes="card">
-                <Grid ColumnDefinitions="*,130,Auto" RowDefinitions="Auto,Auto">
+                <Grid ColumnDefinitions="*,130,Auto">
                     <StackPanel>
-                        <TextBlock Text="Restart desync fix"/>
-                        <TextBlock Classes="hint" Text="Prevents the desync after restarting a run online. Works without mods too; best on every PC, at least on the host's."/>
-                    </StackPanel>
-                    <Border Name="statusRestartDesync" Classes="pill" Grid.Column="1"><TextBlock/></Border>
-                    <Button Name="btnRestartDesync" Grid.Column="2" Click="RestartDesync_Click"/>
-
-                    <StackPanel Grid.Row="1">
                         <TextBlock Text="Coop characters"/>
                         <TextBlock Classes="hint" Text="Experimental. All players will need the character mods at minimum."/>
                     </StackPanel>
-                    <Border Name="statusCoopCharacters" Classes="pill" Grid.Row="1" Grid.Column="1"><TextBlock/></Border>
-                    <Button Name="btnCoopCharacters" Grid.Row="1" Grid.Column="2" Click="CoopCharacters_Click"/>
+                    <Border Name="statusCoopCharacters" Classes="pill" Grid.Column="1"><TextBlock/></Border>
+                    <Button Name="btnCoopCharacters" Grid.Column="2" Click="CoopCharacters_Click"/>
                 </Grid>
             </Border>
         </StackPanel>

@@ -4,8 +4,6 @@ This tool allows you to patch the game binary of **The Binding of Isaac** to ena
 
 This tool also allows you to modify the External Item Descriptions and Antibirth Music+++ mods in a way to enable using them in coop.
 
-The **Restart desync fix** fixes a bug in the game's online netcode that desyncs runs restarted inside an online session. It doesn't need the other patches and helps unmodded games too; apply it on every PC, at least on the host's.
-
 **Note:** You will need to run the patch again each time the game updates.
 
 ## Download
