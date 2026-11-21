@@ -16,7 +16,7 @@ namespace IsaacModInstaller {
     public static class GameLocator {
         private static readonly AppId SteamId = AppId.From(250900);
         private static readonly GOGGameId GogId = GOGGameId.From(1205572215);
-        private static readonly EGSGameId EpicId = EGSGameId.From("dbf5337d024e457bac68f2059112da86");
+        private static readonly EGSGameId EpicId = EGSGameId.From("c8ab2ad77b474c5eb3eab2db73ea6610");
 
         public static string FindGamePath() {
             foreach (Func<AbsolutePath?> find in GetFinders()) {

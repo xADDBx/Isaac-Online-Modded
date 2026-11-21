@@ -20,32 +20,32 @@ namespace IsaacModInstaller {
             "C38BEC83EC10535657FF15");
 
         private static readonly byte[] CoopCharactersToggleOriginal = Convert.FromHexString(
-            "8A4F0984C9510F94C033D284C98847090FB647080F44D303D08D04528D0CC5503BB400E8FF450600");
+            "8A4F0984C9510F94C033D284C98847090FB647080F44D303D08D04528D0CC5503BB400E8EF450600");
         private static readonly byte[] CoopCharactersTogglePatched = Convert.FromHexString(
-            "807709010FB647083C117604B001EB180FB657096BD21203D06BCA185181C1503BB400E8FF450600");
+            "807709010FB647083C117604B001EB180FB657096BD21203D06BCA185181C1503BB400E8EF450600");
         private static readonly byte[] CoopCharactersCycleOriginal = Convert.FromHexString(
-            "8A7F0833F6807F0900B9120000008ADF0F45F10F1F0002D8885F0880FBFF7508C6470811B311EB0B80FB127206C647080032DB0FB6C303C6518D04408D0CC5503BB400E85E45060084C075078B45083ADF75C3817DF8E90300007452");
+            "8A7F0833F6807F0900B9120000008ADF0F45F10F1F0002D8885F0880FBFF7508C6470811B311EB0B80FB127206C647080032DB0FB6C303C6518D04408D0CC5503BB400E84E45060084C075078B45083ADF75C3817DF8E90300007452");
         private static readonly byte[] CoopCharactersCyclePatched = Convert.FromHexString(
-            "8A7F088ADFBE20E0C9008B0E2B4EFCC1F90383C1128A450802D83AD97209C0F8078AD822D902D8885F0880FB1273200FB657096BD2120FB6CB03CA6BC9188D8C0E305BEAFF51E85B45060084C074BB807DF8E9745990909090909090");
+            "8A7F088ADFBEE0DFC9008B0E2B4EFCC1F90383C1128A450802D83AD97209C0F8078AD822D902D8885F0880FB1273200FB657096BD2120FB6CB03CA6BC9188D8C0E705BEAFF51E84B45060084C074BB807DF8E9745990909090909090");
         private static readonly byte[] CoopCharactersRelocationOriginal = Convert.FromHexString(
-            "583C633CF93C233D933D");
+            "C83AD33A693B933B033C");
         private static readonly byte[] CoopCharactersRelocationPatched = Convert.FromHexString(
-            "583C633CC03C233D933D");
+            "C83AD33A303B933B033C");
         private static readonly byte[] CoopCharactersAvailabilityOriginal = Convert.FromHexString(
-            "0FB6C1518D04C08D04428D04408D0CC5503BB400E857D1FFFFC3CCCCCCCCCCCC");
+            "0FB6C1518D04C08D04428D04408D0CC5503BB400E877D0FFFFC3CCCCCCCCCCCC");
         private static readonly byte[] CoopCharactersAvailabilityPatched = Convert.FromHexString(
-            "83FA127203B001C30FB6C16BC01203C26BC8185181C1503BB400E851D1FFFFC3");
+            "83FA127203B001C30FB6C16BC01203C26BC8185181C1503BB400E871D0FFFFC3");
         private static readonly byte[] CoopCharactersAvailabilityRelocationOriginal = Convert.FromHexString(
-            "9E30B23000311A312331");
+            "C400000040305A306330");
         private static readonly byte[] CoopCharactersAvailabilityRelocationPatched = Convert.FromHexString(
-            "9E30B23006311A312331");
+            "C400000046305A306330");
 
         // Online inputs are sent as a 16 bit button mask; the action -> bit switch drops ACTION_MAP, so Lua mods (EID)
         // never see it pressed online. Turn the switch into a plain table lookup and send ACTION_MAP as the unused bit 15.
         private static readonly byte[] MapInputSwitchOriginal = Convert.FromHexString(
-            "83F92277650FB68170F09000FF248530F09000");
+            "83F92277650FB681C0EE9000FF248580EE9000");
         private static readonly byte[] MapInputSwitchPatched = Convert.FromHexString(
-            "83F92277650FB68170F09000C3248530F09000");
+            "83F92277650FB681C0EE9000C3248580EE9000");
         private static readonly byte[] MapInputTableOriginal = Convert.FromHexString(
             "000102030405060708090A0B0F0F0C0F0F0F0D0F0F0F0F0F0F0F0F0F0F0F0F0F0F0F0E");
         private static readonly byte[] MapInputTablePatched = Convert.FromHexString(
